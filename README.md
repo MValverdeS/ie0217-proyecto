@@ -296,3 +296,6 @@ También conocido como CDP o simplemente depósito a plazo, es un instrumento fi
 
     Si la tasa de inflación es mayor que la tasa de interés del CDP, el poder adquisitivo del dinero depositado puede disminuir con el tiempo.
 
+### Tipo de Cambio
+
+El tipo de cambio monetario, también conocido como tasa de cambio o tipo de cambio, es el valor de una moneda de un país en términos de la moneda de otro país. En decir, es el precio al cual una moneda puede ser convertida a otra moneda. El tipo de cambio es fundamental en el comercio internacional y en la economía global, ya que afecta las importaciones, exportaciones, inversiones extranjeras y la economía en general.

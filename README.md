@@ -1,2 +1,298 @@
 # ie0217-proyecto
+
 Este repositorio tiene como finalidad trabajar en el proyecto del curso IE-0217, el cual se está cursando durante el Primer Semestre del 2024. 
+
+## Integrantes
+
+**- Edgar Marcelo Valverde Solís (C08089)**
+
+**- Gabriel González Rivera (B93432)**
+
+**- Daniel Rodríguez Rivas (B96719)**
+
+
+### Qué es un préstamo financiero: tipos y diferencias
+
+Un préstamo financiero consiste en una operación mediante la cual una entidad financiera o un prestamista individual proporciona cierta cantidad de dinero a un prestatario, quien se compromete a devolver dicha cantidad junto con los intereses correspondientes en un plazo de tiempo determinado, generalmente pactado por ambas partes a la hora de la negociación. Los préstamos pueden verse como herramientas financieras que facilitan el acceso a recursos para diversos propósitos, desde la compra de bienes hasta el financiamiento de proyectos empresariales. Existen diversos tipos de préstamos, sin embargo, en este proyecto el énfasis recae en los siguientes tres: _préstamos personales_, _préstamos hipotecarios_ y _préstamos prendarios_. 
+
+### Préstamo personal 
+
+Este es un tipo de financiamiento otorgado a individuos que necesitan dinero para diversos fines personales. Este tipo de préstamo no está vinculado a un propósito específico y puede ser utilizado para una amplia variedad de necesidades, tales como consolidación de deudas, gastos médicos, mejoras en el hogar, viajes, eventos importantes o cualquier otra necesidad financiera personal.
+
+**Características de un Préstamo Personal**
+
+- Monto del Préstamo:
+
+    Los montos pueden variar significativamente, generalmente desde unos pocos cientos hasta decenas de millones de colones (o dólares), dependiendo de la entidad financiera y la capacidad crediticia del solicitante.
+
+- Tasa de Interés:
+
+    La tasa de interés de un préstamo personal puede ser fija o variable. Las tasas fijas permanecen constantes durante todo el plazo del préstamo, mientras que las variables pueden fluctuar basándose en las condiciones del mercado.
+
+- Plazo de Devolución:
+
+    Los plazos de devolución suelen oscilar entre 1 y 5 años, aunque pueden variar según el prestamista y el monto del préstamo.
+
+- Requisitos de Elegibilidad:
+
+    Los prestamistas evalúan la elegibilidad del solicitante basándose en varios factores, como el historial crediticio, la capacidad de pago, los ingresos y, a veces, la relación deuda-ingreso.
+
+- Garantía:
+
+    La mayoría de los préstamos personales son no garantizados, lo que significa que no requieren un activo como garantía. Esto hace que sean más accesibles pero también implica tasas de interés más altas debido al mayor riesgo para el prestamista.
+
+- Flexibilidad en el Uso del Dinero:
+
+    A diferencia de otros tipos de préstamos (como los hipotecarios o de automóviles), los préstamos personales no están restringidos a una finalidad específica, ofreciendo al prestatario mayor flexibilidad en el uso de los fondos.
+
+**Ventajas de los Préstamos Personales**
+
+- Acceso Rápido a Fondos:
+
+    Los préstamos personales suelen ser aprobados y desembolsados con relativa rapidez, lo que los hace ideales para necesidades urgentes.
+
+- Sin Necesidad de Garantías:
+
+    La falta de necesidad de garantía facilita el acceso para aquellos que no tienen activos significativos.
+
+- Tasas de Interés Competitivas:
+
+    Dependiendo del perfil crediticio del prestatario, las tasas de interés pueden ser más competitivas que otras formas de crédito no garantizado, como las tarjetas de crédito.
+
+**Desventajas de los Préstamos Personales**
+
+- Tasas de Interés Elevadas:
+
+    En comparación con préstamos garantizados, las tasas de interés de los préstamos personales pueden ser más altas debido al mayor riesgo que asumen los prestamistas.
+
+- Impacto en el Crédito:
+
+    No cumplir con los pagos del préstamo personal puede afectar negativamente el puntaje crediticio del prestatario.
+
+- Cuotas y Cargos Adicionales:
+
+    Algunos préstamos personales pueden incluir cuotas de apertura, penalizaciones por pago anticipado u otros cargos adicionales.
+
+
+### Préstamo hipotecario
+
+El préstamo hipotecario es un tipo de financiamiento a largo plazo que se utiliza principalmente para la compra de bienes inmuebles, como viviendas, terrenos o locales comerciales. Este préstamo está garantizado por el propio bien inmueble adquirido, lo que significa que el prestamista (generalmente un banco o entidad financiera) tiene el derecho de tomar posesión del inmueble en caso de que el prestatario no cumpla con los pagos acordados.
+
+**Características de un Préstamo Hipotecario**
+
+- Garantía:
+
+    El inmueble adquirido actúa como garantía del préstamo. En caso de incumplimiento de pagos, el prestamista puede ejecutar la hipoteca y vender el inmueble para recuperar el dinero prestado.
+
+- Monto del Préstamo:
+
+    Los montos de los préstamos hipotecarios suelen ser elevados, dado que están destinados a la compra de propiedades. El monto máximo depende del valor de la propiedad y de la capacidad de pago del prestatario.
+
+- Plazo de Devolución:
+
+    Los plazos de los préstamos hipotecarios son generalmente largos, oscilando entre 15 y 30 años, aunque pueden variar según el prestamista y las condiciones específicas del préstamo.
+
+- Tasa de Interés:
+
+    Las tasas de interés de los préstamos hipotecarios pueden ser fijas o variables. Una tasa fija permanece constante durante toda la vida del préstamo, mientras que una tasa variable puede cambiar periódicamente según un índice de referencia.
+
+- Amortización:
+
+    Los préstamos hipotecarios suelen amortizarse mediante pagos mensuales que incluyen una parte del capital y una parte de los intereses. Existen diferentes métodos de amortización, como el sistema francés (cuotas constantes) o el sistema de amortización directa (cuotas decrecientes).
+
+- Costos Adicionales:
+
+    Al contratar un préstamo hipotecario, se pueden incurrir en varios costos adicionales, como comisiones de apertura, gastos de tasación del inmueble, seguros obligatorios (de vida y de hogar), y gastos notariales y registrales.
+
+**Tipos de Préstamos Hipotecarios**
+
+- Hipoteca de Tasa Fija:
+
+    La tasa de interés se mantiene constante durante todo el plazo del préstamo. Esto proporciona estabilidad en los pagos mensuales, ya que no se ven afectados por las fluctuaciones del mercado.
+
+- Hipoteca de Tasa Variable:
+
+    La tasa de interés puede cambiar periódicamente basándose en un índice de referencia. Los pagos mensuales pueden aumentar o disminuir según las variaciones de la tasa.
+
+- Hipoteca Mixta:
+
+    Combina características de las hipotecas de tasa fija y variable. Durante un período inicial, la tasa es fija, y luego cambia a una tasa variable.
+
+- Hipoteca de Interés Solo:
+
+    Durante un período inicial, el prestatario solo paga los intereses del préstamo, lo que reduce los pagos mensuales. Después de este período, se comienzan a pagar tanto el capital como los intereses.
+
+- Hipoteca Inversa:
+
+    Diseñada para propietarios de viviendas mayores de 62 años, permite recibir pagos periódicos del prestamista utilizando la vivienda como garantía. El préstamo se paga cuando el propietario vende la casa, se muda permanentemente o fallece.
+
+**Ventajas de un préstamo hipotecario**
+
+- Acceso a Montos Elevados:
+
+    Permiten financiar la compra de bienes inmuebles, que suelen ser inversiones de gran valor.
+
+- Tasas de Interés Relativamente Bajas:
+
+    En comparación con otros tipos de préstamos no garantizados, las hipotecas suelen tener tasas de interés más bajas debido a la garantía del inmueble.
+
+- Largos Plazos de Devolución:
+
+    Los largos plazos de devolución permiten distribuir los pagos en un período extendido, haciendo que las cuotas mensuales sean más manejables.
+
+**Desventajas de un préstamo hipotecario**
+
+- Riesgo de Pérdida del Inmueble:
+
+    Si el prestatario no cumple con los pagos, puede perder la propiedad debido a la ejecución de la hipoteca.
+
+- Costos Iniciales Elevados:
+
+    Los gastos asociados a la obtención de una hipoteca, como comisiones, seguros y gastos notariales, pueden ser significativos.
+
+- Compromiso a Largo Plazo:
+
+    Un préstamo hipotecario es un compromiso financiero a largo plazo, lo que puede limitar la flexibilidad económica del prestatario durante muchos años.
+
+
+### Préstamo prendario
+
+Este es un tipo de financiamiento en el cual el prestatario entrega un bien mueble como garantía (prenda) al prestamista a cambio de recibir una cantidad de dinero. El bien mueble puede ser, por ejemplo, joyas, vehículos, electrodomésticos, obras de arte, entre otros. En caso de que el prestatario no cumpla con el pago del préstamo, el prestamista tiene el derecho de vender el bien prenda para recuperar el dinero prestado.
+
+**Características de un préstamo prendario**
+
+- Garantía:
+
+    La garantía es un bien mueble que se deja en prenda. El prestamista conserva la posesión del bien hasta que el préstamo sea pagado en su totalidad.
+
+- Monto del Préstamo:
+
+    El monto del préstamo depende del valor del bien mueble que se deja en prenda. Por lo general, se presta un porcentaje del valor de mercado del bien.
+
+- Tasa de Interés:
+
+    Las tasas de interés pueden variar según el prestamista y el tipo de bien dejado en prenda, pero tienden a ser competitivas debido a la seguridad que proporciona la garantía.
+
+- Plazo de Devolución:
+
+    Los plazos de devolución suelen ser cortos, frecuentemente entre 1 y 12 meses, aunque pueden variar según el acuerdo entre las partes.
+
+- Requisitos de Elegibilidad:
+
+    Los requisitos suelen ser menos estrictos que para otros tipos de préstamos, ya que el préstamo está asegurado por la prenda. El historial crediticio del prestatario es menos relevante.
+
+- Valoración del Bien:
+
+    Antes de otorgar el préstamo, el prestamista evalúa el bien mueble para determinar su valor y el monto del préstamo que puede ofrecer.
+
+**Ventajas de un préstamo prendario**
+
+- Acceso Rápido a Fondos:
+
+    La obtención del préstamo es rápida debido a la simplicidad del proceso y la garantía proporcionada por el bien mueble.
+
+- Menores Requisitos de Crédito:
+
+    Los prestamistas suelen preocuparse menos por el historial crediticio del prestatario, dado que el préstamo está respaldado por un bien tangible.
+
+- Flexibilidad de Bienes Aceptados:
+
+    Se pueden utilizar diversos tipos de bienes muebles como garantía, lo que facilita el acceso al préstamo.
+
+**Desventajas de un préstamo prendario**
+
+- Riesgo de Pérdida del Bien:
+
+    Si el prestatario no paga el préstamo según lo acordado, el prestamista puede vender el bien mueble para recuperar su dinero.
+
+- Valor del Préstamo Limitado:
+
+    El monto del préstamo está limitado al valor del bien en prenda, lo que puede ser insuficiente para necesidades de financiamiento más grandes.
+
+- Tasas de Interés:
+
+    Aunque las tasas pueden ser competitivas, a veces pueden ser más altas que otros tipos de préstamos si el bien no tiene un valor de mercado muy líquido.
+
+
+### ¿Qué es una tasa de interés?
+
+Una tasa de interés es el porcentaje que un prestamista cobra a un prestatario por el uso del dinero durante un período específico. En términos monetarios, es el costo del dinero prestado o el rendimiento del dinero invertido. La tasa de interés se expresa como un porcentaje anual del monto principal del préstamo o inversión.
+
+### ¿Cuáles son los tipos de interés?
+
+Los intereses pueden ser fijos, variables o mixtos.
+
+- Interés fijo:
+
+    Este tipo de interés se mantiene constante durante toda la duración o vida del préstamo. Es independiente de la tasa de interés actual del mercado, es decir que si esta llegara a subir, no nos veríamos perjudicados, pero si bajara, tampoco nos beneficiaríamos.
+
+    Se calcula con el promedio de las tasas de interés de los meses anteriores. Por lo general, su plazo de amortización es entre 12 y 15 años. En el interés fijo la tasa se mantiene constante durante toda la duración o vida del préstamo.
+
+- Interés variable:
+
+    Se actualiza y se revisa su cantidad en los plazos establecidos por la entidad financiera. Está sometido a los cambios en las tasas de interés. Con el interés variable nos beneficiamos de la baja en la tasa de interés, pero también nos vemos afectados si sube. Por lo general, se establece un rango dentro del cual oscila la tasa de interés. Su plazo de amortización puede ser más extenso que el de interés fijo.
+
+
+- Interés mixto:
+
+    En este tipo de interés, durante los primeros años de vida del préstamo la tasa de interés es fija y el resto de tiempo, hasta su terminación, es variable.
+
+### Certificado de Depósito a Plazo (CDP)
+
+También conocido como CDP o simplemente depósito a plazo, es un instrumento financiero que permite a los individuos o empresas depositar una cantidad de dinero en una entidad financiera por un período fijo de tiempo a cambio de una tasa de interés preestablecida. Al finalizar el plazo acordado, el depositante recibe el monto original depositado más los intereses generados.
+
+**Características de un Depósito a Plazo**
+
+- Monto del Depósito:
+
+    La cantidad de dinero que se deposita inicialmente. Los montos mínimos pueden variar según la entidad financiera, pero generalmente comienzan en montos accesibles para la mayoría de los ahorradores.
+
+- Plazo:
+
+    El período de tiempo durante el cual el dinero permanece depositado. Los plazos pueden variar desde unos pocos meses hasta varios años, siendo comunes plazos de 30, 60, 90, 180 días, y 1, 2, 5 años, etc.
+
+- Tasa de Interés:
+
+    La tasa de interés que se paga sobre el depósito. Puede ser fija (permaneciendo constante durante todo el período) o variable (ajustándose según las condiciones del mercado). La tasa de interés generalmente aumenta con plazos más largos y montos mayores.
+
+- Pago de Intereses:
+
+    Los intereses pueden pagarse al vencimiento del depósito o en intervalos periódicos (mensuales, trimestrales, anuales), dependiendo de las condiciones acordadas con la entidad financiera.
+
+- Renovación Automática:
+
+    Muchos certificados de depósito a plazo se renuevan automáticamente al vencimiento por el mismo plazo original, a menos que el depositante indique lo contrario.
+
+- Penalización por Retiro Anticipado:
+
+    Si el depositante decide retirar el dinero antes del vencimiento del plazo, generalmente se aplica una penalización que puede consistir en la pérdida de algunos o todos los intereses acumulados y, en algunos casos, una parte del capital.
+
+
+**Ventajas de un Certificado de Depósito a Plazo**
+
+- Seguridad:
+
+    Los CDP suelen estar asegurados por agencias gubernamentales (como el FDIC en EE.UU.), lo que proporciona una garantía sobre el capital depositado hasta ciertos límites.
+
+- Tasa de Interés Garantizada:
+
+    Proporcionan una tasa de interés fija que no cambia durante el plazo del depósito, ofreciendo previsibilidad en los rendimientos.
+
+- Simplicidad:
+
+    Son fáciles de entender y no requieren gestión activa, lo que los hace adecuados para ahorradores conservadores que buscan estabilidad.
+
+**Desventajas de un Certificado de Depósito a Plazo**
+
+- Falta de Liquidez:
+
+    El dinero está bloqueado durante el plazo del depósito. Si se necesita acceder a los fondos antes del vencimiento, se incurre en penalizaciones.
+
+- Rendimientos Limitados:
+
+    Las tasas de interés de los CDP suelen ser más bajas en comparación con inversiones más arriesgadas, como acciones o fondos mutuos. Esto significa que los rendimientos pueden ser menores en contextos de baja inflación.
+
+- Impacto de la Inflación:
+
+    Si la tasa de inflación es mayor que la tasa de interés del CDP, el poder adquisitivo del dinero depositado puede disminuir con el tiempo.
+

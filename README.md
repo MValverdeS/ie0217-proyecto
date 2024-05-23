@@ -2,7 +2,7 @@
 
 Este repositorio tiene como finalidad trabajar en el proyecto del curso IE-0217, el cual se está cursando durante el Primer Semestre del 2024. 
 
-## Integrantes
+# Integrantes
 
 **- Edgar Marcelo Valverde Solís (C08089)**
 
@@ -10,6 +10,7 @@ Este repositorio tiene como finalidad trabajar en el proyecto del curso IE-0217,
 
 **- Daniel Rodríguez Rivas (B96719)**
 
+## I FASE. Investigación
 
 ### Qué es un préstamo financiero: tipos y diferencias
 
@@ -299,3 +300,7 @@ También conocido como CDP o simplemente depósito a plazo, es un instrumento fi
 ### Tipo de Cambio
 
 El tipo de cambio monetario, también conocido como tasa de cambio o tipo de cambio, es el valor de una moneda de un país en términos de la moneda de otro país. En decir, es el precio al cual una moneda puede ser convertida a otra moneda. El tipo de cambio es fundamental en el comercio internacional y en la economía global, ya que afecta las importaciones, exportaciones, inversiones extranjeras y la economía en general.
+
+## II FASE. Diseño
+
+

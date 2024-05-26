@@ -387,3 +387,5 @@ Bienvenido:
             - Pago del préstamo en Colones.
         - *Generar Informe* (.txt):
             - Se creará un archivo de texto con las cuotas pagadas hasta el momento, desglosando el aporte al capital y los intereses abonados.
+
+![Diagrama de flujo propuesto](https://github.com/MValverdeS/ie0217-proyecto/blob/main/Diagrama.png)

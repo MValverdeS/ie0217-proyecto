@@ -435,6 +435,9 @@ Bienvenido:
 ![Diagrama de flujo propuesto](https://github.com/MValverdeS/ie0217-proyecto/blob/main/Diagrama.png)
 
 
+![Cronograma tentativo de progreso](https://github.com/MValverdeS/ie0217-proyecto/blob/main/cronograma.jpeg)
+
+
 ## Referencias
 
 Para elaborar la investigación, se tomaron en cuenta tanto los conocimientos previos, como algunas referencias para abordar ciertos detalles con más precisión. Se adjunta el link de los sitios donde se consultó por dicha información.

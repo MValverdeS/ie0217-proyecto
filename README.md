@@ -433,3 +433,16 @@ Bienvenido:
             - Se creará un archivo de texto con las cuotas pagadas hasta el momento, desglosando el aporte al capital y los intereses abonados.
 
 ![Diagrama de flujo propuesto](https://github.com/MValverdeS/ie0217-proyecto/blob/main/Diagrama.png)
+
+
+## Referencias
+
+Para elaborar la investigación, se tomaron en cuenta tanto los conocimientos previos, como algunas referencias para abordar ciertos detalles con más precisión. Se adjunta el link de los sitios donde se consultó por dicha información.
+
+- https://edu.gcfglobal.org/es/credito/cuales-son-los-tipos-de-interes/1/
+
+- https://www.supervielle.com.ar/blog/educacion-financiera/que-es-un-prestamo-prendario
+
+- https://www.bncr.fi.cr/3-detalles-que-no-pod%C3%A9s-pasar-por-alto-antes-de-pedir-un-pr%C3%A9stamo-personal#:~:text=Un%20pr%C3%A9stamo%20personal%20es%20una,porcentaje%20adicional%20correspondiente%20a%20intereses
+
+- https://www.bncr.fi.cr/-%C2%BFqu%C3%A9-es-un-pr%C3%A9stamo-personal--gu%C3%ADa-pr%C3%A1ctica-para-solicitar-uno

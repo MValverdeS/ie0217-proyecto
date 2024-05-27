@@ -440,3 +440,88 @@ Bienvenido:
 
 
 
+7. Préstamos asociados: Los clientes pueden tener préstamos asociados, ya sea en colones o en dólares, cada uno con características específicas como la tasa de interés, el periodo en meses y la cuota mensual.
+Para realizar el punto 7, en el menú de atención, se le agregará otra opción llamada Solicitar Prestamo, la idea será crear una clase con ese nombre:
+Para préstamo, la idea sería implementar lo siguiente:
+  
+- **Configurar Cuenta**
+    - *Agregar Cuenta*
+        - Cuenta en Dólares
+        - Cuenta en Colones
+    - *Agregar Depósito CDP*
+
+- **Ver Cuenta**
+    - Cuenta en Dólares
+    - Cuenta en Colones
+    - Depósito CDP
+
+- **Préstamos**
+    - *Solicitar Préstamo*
+        - Préstamo en Dólares
+        - Préstamo en Colones
+    
+Las opciones de préstamo en dólares y préstamo en colones imprimirán sus características específicas como la tasa de interés, el periodo en meses y la cuota mensual. Además, se le pedirá al usuario que ingrese la cantidad de dinero que desea solicitar como préstamo. Se aplicarán validaciones para asegurarse de que la entrada del usuario sea válida y se guardará la cantidad de dinero que el usuario solicitó. 
+
+8. Reporte de préstamos: Los clientes pueden solicitar un reporte de sus préstamos. El sistema debe generar un archivo de texto que detalle las cuotas pagadas, desglosando el aporte al capital y los intereses abonados hasta el momento. Este reporte puede presentarse en forma tabular.
+Para esto se expandirá el menú de préstamos:
+  
+- **Préstamos**
+    - *Sacar Préstamo*
+        - Préstamo en Dólares
+        - Préstamo en Colones
+    - *Pagar Préstamo*
+        - Pagar Préstamo en Dólares
+        - Pagar Préstamo en Colones
+    - *Generar Informe* (.txt)
+  
+Cuando se elige en el menú Pagar préstamo en dólares o en colones, se le solicitará al usuario que ingrese la cantidad de dinero con la que va a pagar. Dado que cada usuario tiene su propio token y cuenta específica, se realizará una transacción para transferir el dinero desde esa cuenta y aplicarlo al pago del préstamo. Por último, al elegir la opción de generar informe, se creará un archivo de texto (.txt) donde se encontraran las cuotas pagadas, desglosando el aporte al capital y los intereses abonados.
+  
+9. Almacenamiento de la información: Se debe hacer uso de bases de datos SQL, por lo que es recomendado primero que todo definir el esquema a utilizar.
+En el contexto de un sistema bancario, se utilizará una base de datos SQL como “memoria” para almacenar los datos de los usuarios. Cuando un usuario ingrese sus datos, estos se guardarán en la base de datos. Al cerrar y volver a abrir la aplicación, los datos seguirán estando disponibles sin necesidad de ingreso manual en cada inicio. Además, la base de datos se puede utilizar para prellenar los datos del banco.
+  
+La idea del diseño seria la siguiente:
+  
+Bienvenido:
+  
+1. **Ingresar Cédula:**
+    - El usuario debe ingresar su número de cédula.
+    - Opción para salir.
+
+2. **Información:**
+    - Información sobre los diferentes tipos de préstamos:
+        - *Préstamo Personal:* Imprime las tasas de interés.
+        - *Préstamo Prendario:* Imprime las tasas de interés.
+        - *Préstamo Hipotecario:* Imprime las tasas de interés.
+
+3. **Atención:**
+    - *Agregar Cuenta:*
+        - Cuenta en Dólares.
+        - Cuenta en Colones.
+        - Agregar Depósito CDP.
+    - *Ver Cuenta:*
+        - Cuenta en Dólares.
+        - Cuenta en Colones.
+        - Depósito CDP.
+    - *Operaciones en su Cuenta:*
+        - Depósito.
+        - Retiro.
+        - Transferencia.
+        - Abono.
+    - *Préstamos:*
+        - *Solicitar Préstamo:*
+            - Préstamo en Dólares:
+                - Préstamo Personal (con tasa y plazo correspondientes).
+                - Préstamo Prendario (con tasa y plazo correspondientes).
+                - Préstamo Hipotecario (con tasa y plazo correspondientes).
+            - Préstamo en Colones:
+                - Préstamo Personal (con tasa y plazo correspondientes).
+                - Préstamo Prendario (con tasa y plazo correspondientes).
+                - Préstamo Hipotecario (con tasa y plazo correspondientes).
+        - *Pagar Préstamo:*
+            - Selección de cuotas.
+            - Pago del préstamo en Dólares.
+            - Pago del préstamo en Colones.
+        - *Generar Informe* (.txt):
+            - Se creará un archivo de texto con las cuotas pagadas hasta el momento, desglosando el aporte al capital y los intereses abonados.
+
+![Diagrama de flujo propuesto](https://github.com/MValverdeS/ie0217-proyecto/blob/main/Diagrama.png)

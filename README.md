@@ -303,4 +303,140 @@ El tipo de cambio monetario, también conocido como tasa de cambio o tipo de cam
 
 ## II FASE. Diseño
 
+**1. Selección del modo de operación:**
+El programa se inicia consultando si se desea utilizar en modalidad de atención al cliente o si se quiere obtener la información general sobre préstamos bancarios.
+
+En esta opción, como se debe seleccionar la modalidad deseada (modo atención al cliente o modo información) se planea implementarlo a través de un menú, en donde a través de la funcionalidad **_case_** se puede escoger entre una u otra. En el caso de escoger la atención al cliente, se seguirá con la parte respectiva que conlleva, si se escoge el caso de la información general, el sistema preguntará de nuevo al usuario qué operación desea realizar.
+
+**2. Información general:**
+Se desplegarán las opciones definidas para cada tipo de préstamo, así como la opción de generar una tabla de pagos esperados para la opción seleccionada por el usuario, en donde el monto del préstamo es pedido al mismo. Además se proporcionará la opción de obtener la tabla mediante valores personalizados de monto, cantidad de cuotas y la tasa de interés.
+
+Si se selecciona esta opción se puede abordar con un submenú, donde existen opciones predefinidas en el sistema. Al momento de seleccionar el modo información, se desplegará un nuevo menú para que el usuario pueda seleccionar entre _"Información: Préstamo Personal"_, _"Información: Préstamo Prendario"_ e _"Informacón: Préstamo Hipotecario"_, en el cual cada opción va a generar una tabla de información detallando intereses, plazos y demás datos importantes.
+
+**3. Cuentas bancarias:**
+Cada cliente tiene la posibilidad de contar hasta con dos cuentas bancarias, una en colones y otra en dólares. De igual manera para los certificados de depósito a plazo (CDP).
+
+Para la gestión de las cuentas bancarias de cada cliente, se torna ideal el crear otro submenú, después de haber escogido el _modo atención_. Dentro de este menú, se acoplarían las siguientes opciones: 
+
+- Modificar estado de cuenta
+
+    - Nueva cuenta colones
+    - Nueva cuenta dólares
+    - Nuevo CDP
+
+- Ver estado de cuenta
+
+    - Estado de cuenta colones
+    - Estado de cuenta dólares
+    - Información del CDP
+
+La idea de estas opciones es dar la opción entre agregar una cuenta en colones y otra en dólares, aplicando la lógica correspondiente para asegurar que sean una de cada una (en esta parte toma parte el tipo de cambio). Si se selecciona la opción para consultar el estado de cuenta, solo se imprimiría la información respectiva.
+
+**4. Trámitess bancarios:**
+Los clientes tienen la opción de realizar diversos trámites, tales como depósitos, retiros, transferencias entre cuentas dirigidas a otros clientes, abonos a préstamos tanto propios como de otras personas, etc.
+
+Como se habla de trámites, se esperaría que esta opción se despliegue después de seleccionar el modo de atención al cliente. Dentro de este modo de atención, ahora habría un submenú donde se puede escoger entre operaciones dentro de la cuenta propia u operaciones en cuentas de otros usuarios.
+
+**5. Registro de las transacciones:**
+Se implementará un sistema que sea capaz de mantener un registro detallado de todas las transacciones realizadas, garantizando un seguimiento preciso de cada operación efectuada.
+
+Esta parte no tiene nada de interacción con el usuario, ni se desplegará ninguna información por pantalla. Sin embargo, es esencial que exista, para que el programa funcione de una manera óptima y no nos lleve a errores o bucles en media ejecución del programa.
+
+**6. Identificación para cada cliente:**
+Se tendrá el orden de identificar cada cliente mediante un número de identificación **único**, el cual estará limitado a un número decimal entre 0 y 999999999.
+
+
+**7.Préstamos asociados:**
+Los clientes pueden tener préstamos asociados, ya sea en colones o en dólares, cada uno con características específicas como la tasa de interés, el periodo en meses y la cuota mensual.
+Para realizar el punto 7, en el menú de atención, se le agregará otra opción llamada Solicitar Prestamo, la idea será crear una clase con ese nombre:
+Para préstamo, la idea sería implementar lo siguiente:
+  
+- **Configurar Cuenta**
+    - *Agregar Cuenta*
+        - Cuenta en Dólares
+        - Cuenta en Colones
+    - *Agregar Depósito CDP*
+
+- **Ver Cuenta**
+    - Cuenta en Dólares
+    - Cuenta en Colones
+    - Depósito CDP
+
+- **Préstamos**
+    - *Solicitar Préstamo*
+        - Préstamo en Dólares
+        - Préstamo en Colones
+    
+Las opciones de préstamo en dólares y préstamo en colones imprimirán sus características específicas como la tasa de interés, el periodo en meses y la cuota mensual. Además, se le pedirá al usuario que ingrese la cantidad de dinero que desea solicitar como préstamo. Se aplicarán validaciones para asegurarse de que la entrada del usuario sea válida y se guardará la cantidad de dinero que el usuario solicitó. 
+
+**8. Reporte de préstamos:**
+Los clientes pueden solicitar un reporte de sus préstamos. El sistema debe generar un archivo de texto que detalle las cuotas pagadas, desglosando el aporte al capital y los intereses abonados hasta el momento. Este reporte puede presentarse en forma tabular.
+Para esto se expandirá el menú de préstamos:
+  
+- **Préstamos**
+    - *Sacar Préstamo*
+        - Préstamo en Dólares
+        - Préstamo en Colones
+    - *Pagar Préstamo*
+        - Pagar Préstamo en Dólares
+        - Pagar Préstamo en Colones
+    - *Generar Informe* (.txt)
+  
+Cuando se elige en el menú Pagar préstamo en dólares o en colones, se le solicitará al usuario que ingrese la cantidad de dinero con la que va a pagar. Dado que cada usuario tiene su propio token y cuenta específica, se realizará una transacción para transferir el dinero desde esa cuenta y aplicarlo al pago del préstamo. Por último, al elegir la opción de generar informe, se creará un archivo de texto (.txt) donde se encontraran las cuotas pagadas, desglosando el aporte al capital y los intereses abonados.
+  
+**9. Almacenamiento de la información:**
+Se debe hacer uso de bases de datos SQL, por lo que es recomendado primero que todo definir el esquema a utilizar.
+En el contexto de un sistema bancario, se utilizará una base de datos SQL como “memoria” para almacenar los datos de los usuarios. Cuando un usuario ingrese sus datos, estos se guardarán en la base de datos. Al cerrar y volver a abrir la aplicación, los datos seguirán estando disponibles sin necesidad de ingreso manual en cada inicio. Además, la base de datos se puede utilizar para prellenar los datos del banco.
+  
+La idea del diseño sería la siguiente:
+  
+Bienvenido:
+  
+1. **Ingresar Cédula:**
+    - El usuario debe ingresar su número de cédula.
+    - Opción para salir.
+
+2. **Información:**
+    - Información sobre los diferentes tipos de préstamos:
+        - *Préstamo Personal:* Imprime las tasas de interés.
+        - *Préstamo Prendario:* Imprime las tasas de interés.
+        - *Préstamo Hipotecario:* Imprime las tasas de interés.
+
+3. **Atención:**
+    - *Agregar Cuenta:*
+        - Cuenta en Dólares.
+        - Cuenta en Colones.
+        - Agregar Depósito CDP.
+    - *Ver Cuenta:*
+        - Cuenta en Dólares.
+        - Cuenta en Colones.
+        - Depósito CDP.
+    - *Operaciones en su Cuenta:*
+        - Depósito.
+        - Retiro.
+        - Transferencia.
+        - Abono.
+    - *Préstamos:*
+        - *Solicitar Préstamo:*
+            - Préstamo en Dólares:
+                - Préstamo Personal (con tasa y plazo correspondientes).
+                - Préstamo Prendario (con tasa y plazo correspondientes).
+                - Préstamo Hipotecario (con tasa y plazo correspondientes).
+            - Préstamo en Colones:
+                - Préstamo Personal (con tasa y plazo correspondientes).
+                - Préstamo Prendario (con tasa y plazo correspondientes).
+                - Préstamo Hipotecario (con tasa y plazo correspondientes).
+        - *Pagar Préstamo:*
+            - Selección de cuotas.
+            - Pago del préstamo en Dólares.
+            - Pago del préstamo en Colones.
+        - *Generar Informe* (.txt):
+            - Se creará un archivo de texto con las cuotas pagadas hasta el momento, desglosando el aporte al capital y los intereses abonados.
+
+![Diagrama de flujo propuesto](https://github.com/MValverdeS/ie0217-proyecto/blob/main/Diagrama.png)
+
+
+
+
+
 

@@ -34,10 +34,7 @@ int main(int argc, char* argv[]) {
 
     
 
-
-
-
-
+    
     // Crea una tabla INFOCLIENTES
     sql = "CREATE TABLE IF NOT EXISTS INFOCLIENTES("
                       "IDCLIENTE INT PRIMARY KEY NOT NULL, "
@@ -75,9 +72,94 @@ int main(int argc, char* argv[]) {
         cout << "Operation done successfully" << endl;
     }
 
+    /*Segunda tabla*/
+    const char *sql2 = "CREATE TABLE IF NOT EXISTS CUENTAS("
+                   "ID_CUENTA INT PRIMARY KEY NOT NULL, "
+                   "ID_CLIENTE INT NOT NULL, "
+                   "TIPO TEXT NOT NULL,"
+                   "MONTO REAL NOT NULL, " 
+                   "FOREIGN KEY(ID_CLIENTE) REFERENCES INFOCLIENTES(IDCLIENTE));";
+
+
+     rc = sqlite3_exec(db, sql2, callback, 0, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "Tabla creada con éxito" << endl;
+    }
+
+
+      // Inserta datos en la tabla
+    sql2 = "INSERT INTO CUENTAS (ID_CUENTA, ID_CLIENTE, TIPO, MONTO) "
+        "VALUES (3455, 1, 'Colones', 3252.32); ";
+
+    rc = sqlite3_exec(db, sql2, callback, 0, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "Records created successfully" << endl;
+    }
+
+    // Selecciona datos de la tabla
+    sql2= "SELECT * from CUENTAS";
+    rc = sqlite3_exec(db, sql2, callback, (void*)data, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "Operation done successfully" << endl;
+    }
 
 
 
+    /*Tercera tabla*/
+
+    
+    const char *sql3 = "CREATE TABLE IF NOT EXISTS INFO_PRESTAMOS("
+                   "ID_PRESTAMO INT PRIMARY KEY NOT NULL, "
+                   "ID_CLIENTE INT NOT NULL, "
+                   "TIPO_ID INT NOT NULL,"
+                   "TIPO_PRESTAMO TEXT NOT NULL, " 
+                   "MONEDA TEXT NOT NULL, " 
+                   "MONTO REAL NOT NULL, " 
+                   "TAZA_INTERES REAL NOT NULL, "
+                   "PLAZO INT NOT NULL, " 
+                   "CUOTA_MENSUAL REAL NOT NULL, "  
+                   "FOREIGN KEY(ID_CLIENTE) REFERENCES INFOCLIENTES(IDCLIENTE));";
+
+    
+    rc = sqlite3_exec(db, sql3, callback, 0, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "Tabla creada con éxito" << endl;
+    }
+
+    
+    // Inserta datos en la tabla
+    sql3 = "INSERT INTO INFO_PRESTAMOS (ID_PRESTAMO, ID_CLIENTE, TIPO_ID, TIPO_PRESTAMO, MONEDA, MONTO, TAZA_INTERES, PLAZO, CUOTA_MENSUAL) "
+        "VALUES (22, 1, 3, 'Prendario', 'Colones', 30000, 5.33, 4, 230000); ";
+
+    rc = sqlite3_exec(db, sql3, callback, 0, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "Records created successfully" << endl;
+    }
+
+    // Selecciona datos de la tabla
+    sql3= "SELECT * from CUENTAS";
+    rc = sqlite3_exec(db, sql3, callback, (void*)data, &errMsg);
+    if (rc != SQLITE_OK) {
+        cerr << "SQL error: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "Operation done successfully" << endl;
+    }
 
 
 
@@ -165,7 +247,6 @@ int main() {
 
         default:
 
-            cout << "\nOpción no valida, intente de nuevo \n";
 
             break;
         }

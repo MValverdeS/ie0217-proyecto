@@ -11,6 +11,42 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
     return 0;
 }
 
+
+void realizarDeposito(sqlite3* db, int idCliente) {
+    int idCuenta;
+    double monto;
+    cout << "Ingrese el ID de la cuenta en la que desea realizar el deposito: ";
+    cin >> idCuenta;
+    cout << "Ingrese el monto a depositar: ";
+    cin >> monto;
+
+    const char *sql = "UPDATE CUENTAS SET MONTO = MONTO + ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_double(stmt, 1, monto);
+    sqlite3_bind_int(stmt, 2, idCuenta);
+    sqlite3_bind_int(stmt, 3, idCliente);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo realizar el deposito: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Deposito realizado con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+
+
+
+
+
+
 void menuInicial() {
     cout << "Bienvenido al Sistema de Gestion Bancaria" << endl;
     cout << "Seleccione el modo de operacion:" << endl;
@@ -215,7 +251,7 @@ int main(int argc, char* argv[]) {
                             verCuentas(db, idCliente);
                             break;
                         case 2:
-                            cout << "Funcionalidad de Deposito no implementada aun." << endl;
+                            realizarDeposito(db, idCliente);
                             break;
                         case 3:
                             cout << "Funcionalidad de Retiro no implementada aun." << endl;

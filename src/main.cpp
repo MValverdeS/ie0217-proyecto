@@ -169,7 +169,33 @@ int main(int argc, char* argv[]) {
         switch (opcion) {
             case 1:
                 cout << "Modo de atencion a clientes seleccionado" << endl;
-                // Llamar a la función correspondiente para atención a clientes
+                int opcionCliente = 0;
+                int idCliente;
+                cout << "Ingrese su ID de Cliente: ";
+                cin >> idCliente;
+                while (opcionCliente != 5) {
+                    menuAtencionClientes();
+                    cin >> opcionCliente;
+                    switch (opcionCliente) {
+                        case 1:
+                            verCuentas(db, idCliente);
+                            break;
+                        case 2:
+                            cout << "Funcionalidad de Deposito no implementada aun." << endl;
+                            break;
+                        case 3:
+                            cout << "Funcionalidad de Retiro no implementada aun." << endl;
+                            break;
+                        case 4:
+                            cout << "Funcionalidad de Transferencia no implementada aun." << endl;
+                            break;
+                        case 5:
+                            cout << "Saliendo del menu de atencion a clientes..." << endl;
+                            break;
+                        default:
+                            cout << "Opcion no valida. Por favor, intente de nuevo." << endl;
+                    }
+                }
                 break;
             case 2:
                 cout << "Modo de informacion general seleccionado" << endl;
@@ -185,4 +211,37 @@ int main(int argc, char* argv[]) {
 
     sqlite3_close(db);
     return 0;
+}
+
+
+// Se crea un menu que da las opciones para atencion al cliente
+
+void menuAtencionClientes() {
+    cout << "Menu de Atencion a Clientes" << endl;
+    cout << "1. Ver Cuentas" << endl;
+    cout << "2. Realizar Deposito" << endl;
+    cout << "3. Realizar Retiro" << endl;
+    cout << "4. Realizar Transferencia" << endl;
+    cout << "5. Salir" << endl;
+}
+
+void verCuentas(sqlite3* db, int idCliente) {
+    const char *sql = "SELECT * FROM CUENTAS WHERE ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCliente);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idCuenta = sqlite3_column_int(stmt, 0);
+        const unsigned char* tipo = sqlite3_column_text(stmt, 2);
+        double monto = sqlite3_column_double(stmt, 3);
+        cout << "ID Cuenta: " << idCuenta << ", Tipo: " << tipo << ", Monto: " << monto << endl;
+    }
+
+    sqlite3_finalize(stmt);
 }

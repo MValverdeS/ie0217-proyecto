@@ -136,6 +136,92 @@ void realizarRetiro(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
+void realizarTransferencia(sqlite3* db, int idCliente) {
+    int idCuentaOrigen, idCuentaDestino;
+    double monto;
+    cout << "Ingrese el ID de la cuenta desde la que desea transferir: ";
+    cin >> idCuentaOrigen;
+    cout << "Ingrese el ID de la cuenta de destino: ";
+    cin >> idCuentaDestino;
+    cout << "Ingrese el monto a transferir: ";
+    cin >> monto;
+
+    // Verificar si la cuenta de origen tiene suficiente saldo
+    const char *verificarSaldoSql = "SELECT MONTO FROM CUENTAS WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtSaldo;
+    if (sqlite3_prepare_v2(db, verificarSaldoSql, -1, &stmtSaldo, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtSaldo, 1, idCuentaOrigen);
+    sqlite3_bind_int(stmtSaldo, 2, idCliente);
+
+    if (sqlite3_step(stmtSaldo) == SQLITE_ROW) {
+        double saldoActual = sqlite3_column_double(stmtSaldo, 0);
+        if (saldoActual < monto) {
+            cerr << "Saldo insuficiente." << endl;
+            sqlite3_finalize(stmtSaldo);
+            return;
+        }
+    } else {
+        cerr << "Cuenta no encontrada." << endl;
+        sqlite3_finalize(stmtSaldo);
+        return;
+    }
+
+    sqlite3_finalize(stmtSaldo);
+
+    // Realizar la transferencia
+    sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
+
+    const char *actualizarCuentaOrigenSql = "UPDATE CUENTAS SET MONTO = MONTO - ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtOrigen;
+    if (sqlite3_prepare_v2(db, actualizarCuentaOrigenSql, -1, &stmtOrigen, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_exec(db, "ROLLBACK;", 0, 0, 0);
+        return;
+    }
+
+    sqlite3_bind_double(stmtOrigen, 1, monto);
+    sqlite3_bind_int(stmtOrigen, 2, idCuentaOrigen);
+    sqlite3_bind_int(stmtOrigen, 3, idCliente);
+
+    if (sqlite3_step(stmtOrigen) != SQLITE_DONE) {
+        cerr << "No se pudo realizar la transferencia: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtOrigen);
+        sqlite3_exec(db, "ROLLBACK;", 0, 0, 0);
+        return;
+    }
+
+    sqlite3_finalize(stmtOrigen);
+
+    const char *actualizarCuentaDestinoSql = "UPDATE CUENTAS SET MONTO = MONTO + ? WHERE ID_CUENTA = ?";
+    sqlite3_stmt *stmtDestino;
+    if (sqlite3_prepare_v2(db, actualizarCuentaDestinoSql, -1, &stmtDestino, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_exec(db, "ROLLBACK;", 0, 0, 0);
+        return;
+    }
+
+    sqlite3_bind_double(stmtDestino, 1, monto);
+    sqlite3_bind_int(stmtDestino, 2, idCuentaDestino);
+
+    if (sqlite3_step(stmtDestino) != SQLITE_DONE) {
+        cerr << "No se pudo realizar la transferencia: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtDestino);
+        sqlite3_exec(db, "ROLLBACK;", 0, 0, 0);
+        return;
+    }
+
+    sqlite3_finalize(stmtDestino);
+    sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+
+    cout << "Transferencia realizada con exito." << endl;
+}
+
+
+
 int main(int argc, char* argv[]) {
     sqlite3 *db;
     char *errMsg = 0;
@@ -305,7 +391,7 @@ int main(int argc, char* argv[]) {
                             realizarRetiro(db, idCliente);
                             break;
                         case 4:
-                            cout << "Funcionalidad de Transferencia no implementada aun." << endl;
+                            realizarTransferencia(db, idCliente);
                             break;
                         case 5:
                             cout << "Saliendo del menu de atencion a clientes..." << endl;

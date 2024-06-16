@@ -12,41 +12,6 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
 }
 
 
-void realizarDeposito(sqlite3* db, int idCliente) {
-    int idCuenta;
-    double monto;
-    cout << "Ingrese el ID de la cuenta en la que desea realizar el deposito: ";
-    cin >> idCuenta;
-    cout << "Ingrese el monto a depositar: ";
-    cin >> monto;
-
-    const char *sql = "UPDATE CUENTAS SET MONTO = MONTO + ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
-    sqlite3_stmt *stmt;
-
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
-        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
-        return;
-    }
-
-    sqlite3_bind_double(stmt, 1, monto);
-    sqlite3_bind_int(stmt, 2, idCuenta);
-    sqlite3_bind_int(stmt, 3, idCliente);
-
-    if (sqlite3_step(stmt) != SQLITE_DONE) {
-        cerr << "No se pudo realizar el deposito: " << sqlite3_errmsg(db) << endl;
-    } else {
-        cout << "Deposito realizado con exito." << endl;
-    }
-
-    sqlite3_finalize(stmt);
-}
-
-
-
-
-
-
-
 void menuInicial() {
     cout << "Bienvenido al Sistema de Gestion Bancaria" << endl;
     cout << "Seleccione el modo de operacion:" << endl;
@@ -87,6 +52,89 @@ void verCuentas(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
+void realizarDeposito(sqlite3* db, int idCliente) {
+    int idCuenta;
+    double monto;
+    cout << "Ingrese el ID de la cuenta en la que desea realizar el deposito: ";
+    cin >> idCuenta;
+    cout << "Ingrese el monto a depositar: ";
+    cin >> monto;
+
+    const char *sql = "UPDATE CUENTAS SET MONTO = MONTO + ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_double(stmt, 1, monto);
+    sqlite3_bind_int(stmt, 2, idCuenta);
+    sqlite3_bind_int(stmt, 3, idCliente);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo realizar el deposito: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Deposito realizado con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+void realizarRetiro(sqlite3* db, int idCliente) {
+    int idCuenta;
+    double monto;
+    cout << "Ingrese el ID de la cuenta desde la que desea realizar el retiro: ";
+    cin >> idCuenta;
+    cout << "Ingrese el monto a retirar: ";
+    cin >> monto;
+
+    // Verificar si la cuenta tiene suficiente saldo
+    const char *verificarSaldoSql = "SELECT MONTO FROM CUENTAS WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtSaldo;
+    if (sqlite3_prepare_v2(db, verificarSaldoSql, -1, &stmtSaldo, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtSaldo, 1, idCuenta);
+    sqlite3_bind_int(stmtSaldo, 2, idCliente);
+
+    if (sqlite3_step(stmtSaldo) == SQLITE_ROW) {
+        double saldoActual = sqlite3_column_double(stmtSaldo, 0);
+        if (saldoActual < monto) {
+            cerr << "Saldo insuficiente." << endl;
+            sqlite3_finalize(stmtSaldo);
+            return;
+        }
+    } else {
+        cerr << "Cuenta no encontrada." << endl;
+        sqlite3_finalize(stmtSaldo);
+        return;
+    }
+
+    sqlite3_finalize(stmtSaldo);
+
+    const char *sql = "UPDATE CUENTAS SET MONTO = MONTO - ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_double(stmt, 1, monto);
+    sqlite3_bind_int(stmt, 2, idCuenta);
+    sqlite3_bind_int(stmt, 3, idCliente);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo realizar el retiro: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Retiro realizado con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;
@@ -254,7 +302,7 @@ int main(int argc, char* argv[]) {
                             realizarDeposito(db, idCliente);
                             break;
                         case 3:
-                            cout << "Funcionalidad de Retiro no implementada aun." << endl;
+                            realizarRetiro(db, idCliente);
                             break;
                         case 4:
                             cout << "Funcionalidad de Transferencia no implementada aun." << endl;

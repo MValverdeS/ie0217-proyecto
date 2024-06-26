@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <sqlite3.h>
 
 using namespace std;
@@ -29,6 +30,13 @@ void menuAtencionClientes() {
     cout << "3. Realizar Retiro" << endl;
     cout << "4. Realizar Transferencia" << endl;
     cout << "5. Salir" << endl;
+}
+
+void menuInformacionPrestamos() {
+    cout << "Menu de Informacion General sobre Prestamos" << endl;
+    cout << "1. Ver Informacion de Prestamos" << endl;
+    cout << "2. Calcular Tabla de Pagos" << endl;
+    cout << "3. Salir" << endl;
 }
 
 void verCuentas(sqlite3* db, int idCliente) {
@@ -220,6 +228,58 @@ void realizarTransferencia(sqlite3* db, int idCliente) {
     cout << "Transferencia realizada con exito." << endl;
 }
 
+void verInformacionPrestamos(sqlite3* db) {
+    const char *sql = "SELECT * FROM TIPOS_PRESTAMO";
+    sqlite3_stmt *stmt;
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idTipo = sqlite3_column_int(stmt, 0);
+        const unsigned char* tipo = sqlite3_column_text(stmt, 1);
+        double tasaInteres = sqlite3_column_double(stmt, 2);
+        int plazoMeses = sqlite3_column_int(stmt, 3);
+        cout << "ID Tipo: " << idTipo << ", Tipo: " << tipo 
+             << ", Tasa de Interes: " << tasaInteres << "%, Plazo: " << plazoMeses << " meses" << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+void calcularTablaPagos() {
+    double monto, tasaInteres;
+    int plazoMeses;
+
+    cout << "Ingrese el monto del prestamo: ";
+    cin >> monto;
+    cout << "Ingrese la tasa de interes (en %): ";
+    cin >> tasaInteres;
+    cout << "Ingrese el plazo en meses: ";
+    cin >> plazoMeses;
+
+    tasaInteres = tasaInteres / 100 / 12; // Convertir tasa anual a mensual
+    double cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazoMeses));
+
+    cout << "Cuota mensual: " << cuotaMensual << endl;
+    cout << "Tabla de pagos esperados:" << endl;
+
+    double saldo = monto;
+    for (int i = 1; i <= plazoMeses; ++i) {
+        double interes = saldo * tasaInteres;
+        double principal = cuotaMensual - interes;
+        saldo -= principal;
+        cout << "Mes " << i << ": Pago: " << cuotaMensual 
+             << ", Interes: " << interes 
+             << ", Principal: " << principal 
+             << ", Saldo restante: " << saldo << endl;
+    }
+}
+
+
+
 
 
 int main(int argc, char* argv[]) {
@@ -401,10 +461,28 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 break;
-            case 2:
+            case 2:{
                 cout << "Modo de informacion general seleccionado" << endl;
-                // Llamar a la función correspondiente para información general
+                int opcionInformacion = 0;
+                while (opcionInformacion != 3) {
+                    menuInformacionPrestamos();
+                    cin >> opcionInformacion;
+                    switch (opcionInformacion) {
+                        case 1:
+                            verInformacionPrestamos(db);
+                            break;
+                        case 2:
+                            calcularTablaPagos();
+                            break;
+                        case 3:
+                            cout << "Saliendo del menu de informacion general..." << endl;
+                            break;
+                        default:
+                            cout << "Opcion no valida. Por favor, intente de nuevo." << endl;
+                    }
+                }
                 break;
+            }
             case 3:
                 cout << "Saliendo del sistema..." << endl;
                 break;

@@ -60,6 +60,34 @@ void verCuentas(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
+void registrarTransaccion(sqlite3* db, int idCuenta, const char* tipoTransaccion, double monto, int idCuentaDestino = -1) {
+    const char *sql = "INSERT INTO TRANSACCIONES (ID_CUENTA, ID_CUENTA_DESTINO, TIPO_TRANSACCION, MONTO, FECHA_TRANSACCION) VALUES (?, ?, ?, ?, datetime('now'))";
+    sqlite3_stmt *stmt;
+
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de transaccion: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCuenta);
+    if (idCuentaDestino == -1) {
+        sqlite3_bind_null(stmt, 2);
+    } else {
+        sqlite3_bind_int(stmt, 2, idCuentaDestino);
+    }
+    sqlite3_bind_text(stmt, 3, tipoTransaccion, -1, SQLITE_STATIC);
+    sqlite3_bind_double(stmt, 4, monto);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo registrar la transaccion: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Transaccion registrada con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 void realizarDeposito(sqlite3* db, int idCliente) {
     int idCuenta;
     double monto;
@@ -84,6 +112,7 @@ void realizarDeposito(sqlite3* db, int idCliente) {
         cerr << "No se pudo realizar el deposito: " << sqlite3_errmsg(db) << endl;
     } else {
         cout << "Deposito realizado con exito." << endl;
+        registrarTransaccion(db, idCuenta, "Deposito", monto);
     }
 
     sqlite3_finalize(stmt);
@@ -139,6 +168,7 @@ void realizarRetiro(sqlite3* db, int idCliente) {
         cerr << "No se pudo realizar el retiro: " << sqlite3_errmsg(db) << endl;
     } else {
         cout << "Retiro realizado con exito." << endl;
+        registrarTransaccion(db, idCuenta, "Retiro", monto);
     }
 
     sqlite3_finalize(stmt);
@@ -226,6 +256,7 @@ void realizarTransferencia(sqlite3* db, int idCliente) {
     sqlite3_exec(db, "COMMIT;", 0, 0, 0);
 
     cout << "Transferencia realizada con exito." << endl;
+    registrarTransaccion(db, idCuentaOrigen, "Transferencia", monto, idCuentaDestino);
 }
 
 void verInformacionPrestamos(sqlite3* db) {

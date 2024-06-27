@@ -31,7 +31,9 @@ void menuAtencionClientes() {
     cout << "3. Realizar Retiro" << endl;
     cout << "4. Realizar Transferencia" << endl;
     cout << "5. Prestamos" << endl;
-    cout << "6. Salir" << endl;
+    cout << "6. CDP" << endl;
+    cout << "7. Ver Transacciones" << endl;
+    cout << "8. Salir" << endl;
 }
 
 void menuInformacionPrestamos() {
@@ -47,6 +49,13 @@ void menuPrestamos() {
     cout << "2. Ver Prestamos" << endl;
     cout << "3. Generar Reporte de Prestamos" << endl;
     cout << "4. Salir" << endl;
+}
+
+void menuCDP() {
+    cout << "Menu de CDP" << endl;
+    cout << "1. Crear CDP" << endl;
+    cout << "2. Ver CDP" << endl;
+    cout << "3. Salir" << endl;
 }
 
 void verCuentas(sqlite3* db, int idCliente) {
@@ -98,6 +107,32 @@ void registrarTransaccion(sqlite3* db, int idCuenta, const char* tipoTransaccion
     sqlite3_finalize(stmt);
 }
 
+void verTransacciones(sqlite3* db, int idCliente) {
+    const char *sql = "SELECT * FROM TRANSACCIONES WHERE ID_CUENTA IN (SELECT ID_CUENTA FROM CUENTAS WHERE ID_CLIENTE = ?)";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCliente);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idTransaccion = sqlite3_column_int(stmt, 0);
+        int idCuenta = sqlite3_column_int(stmt, 1);
+        int idCuentaDestino = sqlite3_column_int(stmt, 2);
+        const unsigned char* tipoTransaccion = sqlite3_column_text(stmt, 3);
+        double monto = sqlite3_column_double(stmt, 4);
+        const unsigned char* fechaTransaccion = sqlite3_column_text(stmt, 5);
+        cout << "ID Transaccion: " << idTransaccion << ", ID Cuenta: " << idCuenta
+             << ", ID Cuenta Destino: " << idCuentaDestino << ", Tipo: " << tipoTransaccion
+             << ", Monto: " << monto << ", Fecha: " << fechaTransaccion << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 void realizarDeposito(sqlite3* db, int idCliente) {
     int idCuenta;
     double monto;
@@ -123,6 +158,72 @@ void realizarDeposito(sqlite3* db, int idCliente) {
     } else {
         cout << "Deposito realizado con exito." << endl;
         registrarTransaccion(db, idCuenta, "Deposito", monto);
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+void crearCDP(sqlite3* db, int idCliente) {
+    int idCDP;
+    double monto, interes;
+    string fechaInicial, fechaVencimiento;
+
+    cout << "Ingrese el ID del CDP: ";
+    cin >> idCDP;
+    cout << "Ingrese el monto del CDP: ";
+    cin >> monto;
+    cout << "Ingrese la tasa de interes: ";
+    cin >> interes;
+    cout << "Ingrese la fecha inicial (YYYY-MM-DD): ";
+    cin >> fechaInicial;
+    cout << "Ingrese la fecha de vencimiento (YYYY-MM-DD): ";
+    cin >> fechaVencimiento;
+
+    const char *sql = "INSERT INTO INFO_CDP (ID_CDP, ID_CLIENTE, MONTO, INTERES, FECHA_INICIAL, FECHA_VENCIMIENTO) "
+                      "VALUES (?, ?, ?, ?, ?, ?)";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCDP);
+    sqlite3_bind_int(stmt, 2, idCliente);
+    sqlite3_bind_double(stmt, 3, monto);
+    sqlite3_bind_double(stmt, 4, interes);
+    sqlite3_bind_text(stmt, 5, fechaInicial.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 6, fechaVencimiento.c_str(), -1, SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo crear el CDP: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "CDP creado con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+
+void verCDP(sqlite3* db, int idCliente) {
+    const char *sql = "SELECT * FROM INFO_CDP WHERE ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCliente);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idCDP = sqlite3_column_int(stmt, 0);
+        double monto = sqlite3_column_double(stmt, 2);
+        double interes = sqlite3_column_double(stmt, 3);
+        const unsigned char* fechaInicial = sqlite3_column_text(stmt, 4);
+        const unsigned char* fechaVencimiento = sqlite3_column_text(stmt, 5);
+        cout << "ID CDP: " << idCDP << ", Monto: " << monto << ", Interes: " << interes
+             << ", Fecha Inicial: " << fechaInicial << ", Fecha de Vencimiento: " << fechaVencimiento << endl;
     }
 
     sqlite3_finalize(stmt);
@@ -588,7 +689,7 @@ int main(int argc, char* argv[]) {
                 cout << "Modo de atencion a clientes seleccionado" << endl;
                 cout << "Ingrese su ID de Cliente: ";
                 cin >> idCliente;
-                while (opcionCliente != 6) {
+                while (opcionCliente != 8) {
                     menuAtencionClientes();
                     cin >> opcionCliente;
                     switch (opcionCliente) {
@@ -629,11 +730,40 @@ int main(int argc, char* argv[]) {
                             break;
                         }
                         case 6:
+                        {
+                            int opcionCDP = 0;
+                            while (opcionCDP != 3) 
+                            {
+                                menuCDP();
+                                cin >> opcionCDP;
+                                switch (opcionCDP) 
+                                {
+                                    case 1:
+                                        crearCDP(db, idCliente);
+                                        break;
+                                    case 2:
+                                        verCDP(db, idCliente);
+                                        break;
+                                    case 3:
+                                        cout << "Saliendo del menu de CDP..." << endl;
+                                        break;
+                                    default:
+                                        cout << "Opcion no valida. Por favor, intente de nuevo." << endl;
+                                }
+                            }
+                            break;
+                        }
+
+                        case 7:
+                            verTransacciones(db, idCliente);
+                            break;
+                        case 8:
                             cout << "Saliendo del menu de atencion a clientes..." << endl;
                             break;
                         default:
                             cout << "Opcion no valida. Por favor, intente de nuevo." << endl;
                     }
+                    
                 }
                 break;
             case 2:{

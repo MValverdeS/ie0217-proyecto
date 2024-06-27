@@ -40,7 +40,8 @@ void menuInformacionPrestamos() {
     cout << "Menu de Informacion General sobre Prestamos" << endl;
     cout << "1. Ver Informacion de Prestamos" << endl;
     cout << "2. Calcular Tabla de Pagos" << endl;
-    cout << "3. Salir" << endl;
+    cout << "3. Agregar Tipo de Prestamo" << endl;
+    cout << "4. Salir" << endl;
 }
 
 void menuPrestamos() {
@@ -672,6 +673,42 @@ void agregarCliente(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
+void agregarTipoPrestamo(sqlite3* db) {
+    int idTipo, plazoMeses;
+    double tasaInteres;
+    string tipo;
+
+    cout << "Ingrese el ID del tipo de prestamo: ";
+    cin >> idTipo;
+    cout << "Ingrese el tipo de prestamo: ";
+    cin >> tipo;
+    cout << "Ingrese la tasa de interes (en %): ";
+    cin >> tasaInteres;
+    cout << "Ingrese el plazo en meses: ";
+    cin >> plazoMeses;
+
+    const char *sql = "INSERT INTO TIPOS_PRESTAMO (ID_TIPO, TIPO, TASA_INTERES, PLAZO_MESES) VALUES (?, ?, ?, ?)";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idTipo);
+    sqlite3_bind_text(stmt, 2, tipo.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_double(stmt, 3, tasaInteres);
+    sqlite3_bind_int(stmt, 4, plazoMeses);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo agregar el tipo de prestamo: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Tipo de prestamo agregado con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;
@@ -918,7 +955,7 @@ int main(int argc, char* argv[]) {
             case 2:{
                 cout << "Modo de informacion general seleccionado" << endl;
                 int opcionInformacion = 0;
-                while (opcionInformacion != 3) {
+                while (opcionInformacion != 4) {
                     menuInformacionPrestamos();
                     cin >> opcionInformacion;
                     switch (opcionInformacion) {
@@ -929,6 +966,9 @@ int main(int argc, char* argv[]) {
                             calcularTablaPagos();
                             break;
                         case 3:
+                            agregarTipoPrestamo(db);
+                            break;
+                        case 4:
                             cout << "Saliendo del menu de informacion general..." << endl;
                             break;
                         default:

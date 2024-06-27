@@ -32,7 +32,8 @@ void menuAtencionClientes() {
     cout << "5. Prestamos" << endl;
     cout << "6. CDP" << endl;
     cout << "7. Ver Transacciones" << endl;
-    cout << "8. Salir" << endl;
+    cout << "8. Agregar Cliente" << endl;
+    cout << "9. Salir" << endl;
 }
 
 void menuInformacionPrestamos() {
@@ -636,6 +637,41 @@ void pagarPrestamo(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmtPago);
 }
 
+void agregarCliente(sqlite3* db) {
+    int idCliente, cedula;
+    string nombre, apellido;
+
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+    cout << "Ingrese la Cedula del Cliente: ";
+    cin >> cedula;
+    cout << "Ingrese el Nombre del Cliente: ";
+    cin >> nombre;
+    cout << "Ingrese el Apellido del Cliente: ";
+    cin >> apellido;
+
+    const char *sql = "INSERT INTO INFOCLIENTES (IDCLIENTE, CEDULA, NOMBRE, APELLIDO) VALUES (?, ?, ?, ?)";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCliente);
+    sqlite3_bind_int(stmt, 2, cedula);
+    sqlite3_bind_text(stmt, 3, nombre.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 4, apellido.c_str(), -1, SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo agregar el cliente: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Cliente agregado con exito." << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;
@@ -792,7 +828,8 @@ int main(int argc, char* argv[]) {
                 cout << "Modo de atencion a clientes seleccionado" << endl;
                 cout << "Ingrese su ID de Cliente: ";
                 cin >> idCliente;
-                while (opcionCliente != 8) {
+                opcionCliente = 0;
+                while (opcionCliente != 9) {
                     menuAtencionClientes();
                     cin >> opcionCliente;
                     switch (opcionCliente) {
@@ -867,6 +904,9 @@ int main(int argc, char* argv[]) {
                             verTransacciones(db, idCliente);
                             break;
                         case 8:
+                            agregarCliente(db);
+                            break;
+                        case 9:
                             cout << "Saliendo del menu de atencion a clientes..." << endl;
                             break;
                         default:

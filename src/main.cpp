@@ -22,7 +22,6 @@ void menuInicial() {
     cout << "3. Salir" << endl;
 }
 
-// Se crea un menu que da las opciones para atencion al cliente
 
 void menuAtencionClientes() {
     cout << "Menu de Atencion a Clientes" << endl;
@@ -48,7 +47,8 @@ void menuPrestamos() {
     cout << "1. Solicitar Prestamo" << endl;
     cout << "2. Ver Prestamos" << endl;
     cout << "3. Generar Reporte de Prestamos" << endl;
-    cout << "4. Salir" << endl;
+    cout << "4. Pagar Prestamo" << endl;
+    cout << "5. Salir" << endl;
 }
 
 void menuCDP() {
@@ -533,6 +533,82 @@ void generarReportePrestamos(sqlite3* db, int idCliente) {
     cout << "Reporte de prestamos generado con exito en 'reporte_prestamos.txt'." << endl;
 }
 
+void pagarPrestamo(sqlite3* db, int idCliente) {
+    int idPrestamo;
+    double montoPago, pagoCapital, pagoInteres;
+
+    cout << "Ingrese el ID del prestamo que desea pagar: ";
+    cin >> idPrestamo;
+    cout << "Ingrese el monto a pagar: ";
+    cin >> montoPago;
+
+    // Obtener información del préstamo
+    const char *sqlInfoPrestamo = "SELECT MONTO, TASA_INTERES, PLAZO FROM INFO_PRESTAMOS WHERE ID_PRESTAMO = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtInfo;
+    if (sqlite3_prepare_v2(db, sqlInfoPrestamo, -1, &stmtInfo, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de información del préstamo: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+    sqlite3_bind_int(stmtInfo, 1, idPrestamo);
+    sqlite3_bind_int(stmtInfo, 2, idCliente);
+
+    double montoRestante, tasaInteres;
+    int plazo;
+    if (sqlite3_step(stmtInfo) == SQLITE_ROW) {
+        montoRestante = sqlite3_column_double(stmtInfo, 0);
+        tasaInteres = sqlite3_column_double(stmtInfo, 1);
+        plazo = sqlite3_column_int(stmtInfo, 2);
+    } else {
+        cerr << "Préstamo no encontrado." << endl;
+        sqlite3_finalize(stmtInfo);
+        return;
+    }
+    sqlite3_finalize(stmtInfo);
+
+    // Calcular los pagos de capital e interés
+    pagoInteres = montoRestante * (tasaInteres / 100 / 12);
+    pagoCapital = montoPago - pagoInteres;
+    montoRestante -= pagoCapital;
+
+    // Actualizar el monto del préstamo
+    const char *sqlActualizarPrestamo = "UPDATE INFO_PRESTAMOS SET MONTO = ? WHERE ID_PRESTAMO = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtActualizar;
+    if (sqlite3_prepare_v2(db, sqlActualizarPrestamo, -1, &stmtActualizar, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de actualización del préstamo: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+    sqlite3_bind_double(stmtActualizar, 1, montoRestante);
+    sqlite3_bind_int(stmtActualizar, 2, idPrestamo);
+    sqlite3_bind_int(stmtActualizar, 3, idCliente);
+
+    if (sqlite3_step(stmtActualizar) != SQLITE_DONE) {
+        cerr << "No se pudo actualizar el préstamo: " << sqlite3_errmsg(db) << endl;
+    }
+    sqlite3_finalize(stmtActualizar);
+
+    // Registrar el pago en la tabla de pagos
+    const char *sqlRegistrarPago = "INSERT INTO PAGO_PRESTAMOS (ID_PRESTAMO, MONTO, PAGO_CAPITAL, PAGO_INTERES, FECHA_PAGO) "
+                                   "VALUES (?, ?, ?, ?, datetime('now'))";
+    sqlite3_stmt *stmtPago;
+    if (sqlite3_prepare_v2(db, sqlRegistrarPago, -1, &stmtPago, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de registro de pago: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+    sqlite3_bind_int(stmtPago, 1, idPrestamo);
+    sqlite3_bind_double(stmtPago, 2, montoPago);
+    sqlite3_bind_double(stmtPago, 3, pagoCapital);
+    sqlite3_bind_double(stmtPago, 4, pagoInteres);
+
+    if (sqlite3_step(stmtPago) != SQLITE_DONE) {
+        cerr << "No se pudo registrar el pago: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "Pago del préstamo realizado con éxito." << endl;
+        registrarTransaccion(db, idCliente, "Pago de Prestamo", montoPago, idPrestamo);
+    }
+
+    sqlite3_finalize(stmtPago);
+}
+
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;
@@ -707,7 +783,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case 5:{
                             int opcionPrestamos = 0;
-                            while (opcionPrestamos != 4) {
+                            while (opcionPrestamos != 5) {
                                 menuPrestamos();
                                 cin >> opcionPrestamos;
                                 switch (opcionPrestamos) {
@@ -721,6 +797,9 @@ int main(int argc, char* argv[]) {
                                         generarReportePrestamos(db, idCliente);
                                         break;
                                     case 4:
+                                        pagarPrestamo(db, idCliente);
+                                        break;
+                                    case 5:
                                         cout << "Saliendo del menu de prestamos..." << endl;
                                         break;
                                     default:

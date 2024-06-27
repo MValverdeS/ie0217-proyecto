@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <fstream>
 #include <sqlite3.h>
 
 using namespace std;
@@ -44,7 +45,8 @@ void menuPrestamos() {
     cout << "Menu de Prestamos" << endl;
     cout << "1. Solicitar Prestamo" << endl;
     cout << "2. Ver Prestamos" << endl;
-    cout << "3. Salir" << endl;
+    cout << "3. Generar Reporte de Prestamos" << endl;
+    cout << "4. Salir" << endl;
 }
 
 void verCuentas(sqlite3* db, int idCliente) {
@@ -394,6 +396,42 @@ void verPrestamos(sqlite3* db, int idCliente) {
 }
 
 
+void generarReportePrestamos(sqlite3* db, int idCliente) {
+    const char *sql = "SELECT * FROM INFO_PRESTAMOS WHERE ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+    ofstream reporte("reporte_prestamos.txt");
+
+    if (!reporte.is_open()) {
+        cerr << "No se pudo abrir el archivo de reporte." << endl;
+        return;
+    }
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCliente);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idPrestamo = sqlite3_column_int(stmt, 0);
+        const unsigned char* tipoPrestamo = sqlite3_column_text(stmt, 3);
+        const unsigned char* moneda = sqlite3_column_text(stmt, 4);
+        double monto = sqlite3_column_double(stmt, 5);
+        double tasaInteres = sqlite3_column_double(stmt, 6);
+        int plazo = sqlite3_column_int(stmt, 7);
+        double cuotaMensual = sqlite3_column_double(stmt, 8);
+        reporte << "ID Prestamo: " << idPrestamo << "\nTipo: " << tipoPrestamo 
+                << "\nMoneda: " << moneda << "\nMonto: " << monto 
+                << "\nTasa de Interes: " << tasaInteres << "%\nPlazo: " << plazo 
+                << " meses\nCuota Mensual: " << cuotaMensual << "\n\n";
+    }
+
+    sqlite3_finalize(stmt);
+    reporte.close();
+    cout << "Reporte de prestamos generado con exito en 'reporte_prestamos.txt'." << endl;
+}
+
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;
@@ -568,7 +606,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case 5:{
                             int opcionPrestamos = 0;
-                            while (opcionPrestamos != 3) {
+                            while (opcionPrestamos != 4) {
                                 menuPrestamos();
                                 cin >> opcionPrestamos;
                                 switch (opcionPrestamos) {
@@ -579,6 +617,9 @@ int main(int argc, char* argv[]) {
                                         verPrestamos(db, idCliente);
                                         break;
                                     case 3:
+                                        generarReportePrestamos(db, idCliente);
+                                        break;
+                                    case 4:
                                         cout << "Saliendo del menu de prestamos..." << endl;
                                         break;
                                     default:

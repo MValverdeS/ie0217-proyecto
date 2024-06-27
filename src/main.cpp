@@ -55,7 +55,9 @@ void menuCDP() {
     cout << "Menu de CDP" << endl;
     cout << "1. Crear CDP" << endl;
     cout << "2. Ver CDP" << endl;
-    cout << "3. Salir" << endl;
+    cout << "3. Eliminar CDP" << endl;
+    cout << "4. Salir" << endl;
+
 }
 
 void verCuentas(sqlite3* db, int idCliente) {
@@ -224,6 +226,31 @@ void verCDP(sqlite3* db, int idCliente) {
         const unsigned char* fechaVencimiento = sqlite3_column_text(stmt, 5);
         cout << "ID CDP: " << idCDP << ", Monto: " << monto << ", Interes: " << interes
              << ", Fecha Inicial: " << fechaInicial << ", Fecha de Vencimiento: " << fechaVencimiento << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+void eliminarCDP(sqlite3* db, int idCliente) {
+    int idCDP;
+    cout << "Ingrese el ID del CDP que desea eliminar: ";
+    cin >> idCDP;
+
+    const char *sql = "DELETE FROM INFO_CDP WHERE ID_CDP = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, idCDP);
+    sqlite3_bind_int(stmt, 2, idCliente);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        cerr << "No se pudo eliminar el CDP: " << sqlite3_errmsg(db) << endl;
+    } else {
+        cout << "CDP eliminado con exito." << endl;
     }
 
     sqlite3_finalize(stmt);
@@ -732,7 +759,7 @@ int main(int argc, char* argv[]) {
                         case 6:
                         {
                             int opcionCDP = 0;
-                            while (opcionCDP != 3) 
+                            while (opcionCDP != 4) 
                             {
                                 menuCDP();
                                 cin >> opcionCDP;
@@ -745,10 +772,13 @@ int main(int argc, char* argv[]) {
                                         verCDP(db, idCliente);
                                         break;
                                     case 3:
+                                        eliminarCDP(db, idCliente);
+                                        break;
+                                    case 4:
                                         cout << "Saliendo del menu de CDP..." << endl;
                                         break;
                                     default:
-                                        cout << "Opcion no valida. Por favor, intente de nuevo." << endl;
+                                    cout << "Opcion no valida. Por favor, intente de nuevo." << endl;
                                 }
                             }
                             break;

@@ -665,32 +665,120 @@ void verInformacionPrestamos(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
-void calcularTablaPagos() {
-    double monto, tasaInteres;
-    int plazoMeses;
+void calcularTablaPagos(sqlite3* db) {
+    int opcion;
+    cout << "Seleccione la opción de cálculo:" << endl;
+    cout << "1. Calcular de manera personalizada" << endl;
+    cout << "2. Calcular con tipos de préstamo existentes" << endl;
+    cin >> opcion;
 
-    cout << "Ingrese el monto del prestamo: ";
-    cin >> monto;
-    cout << "Ingrese la tasa de interes (en %): ";
-    cin >> tasaInteres;
-    cout << "Ingrese el plazo en meses: ";
-    cin >> plazoMeses;
+    if (opcion == 1) {
+        double monto, tasaInteres;
+        int plazoMeses;
 
-    tasaInteres = tasaInteres / 100 / 12; // Convertir tasa anual a mensual
-    double cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazoMeses));
+        cout << "Ingrese el monto del préstamo: ";
+        cin >> monto;
+        cout << "Ingrese la tasa de interés (en %): ";
+        cin >> tasaInteres;
+        cout << "Ingrese el plazo en meses: ";
+        cin >> plazoMeses;
 
-    cout << "Cuota mensual: " << cuotaMensual << endl;
-    cout << "Tabla de pagos esperados:" << endl;
+        tasaInteres = tasaInteres / 100 / 12; // Convertir tasa anual a mensual
+        double cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazoMeses));
 
-    double saldo = monto;
-    for (int i = 1; i <= plazoMeses; ++i) {
-        double interes = saldo * tasaInteres;
-        double principal = cuotaMensual - interes;
-        saldo -= principal;
-        cout << "Mes " << i << ": Pago: " << cuotaMensual 
-             << ", Interes: " << interes 
-             << ", Principal: " << principal 
-             << ", Saldo restante: " << saldo << endl;
+        cout << "Cuota mensual: " << cuotaMensual << endl;
+        cout << "Tabla de pagos esperados:" << endl;
+
+        double saldo = monto;
+        for (int i = 1; i <= plazoMeses; ++i) {
+            double interes = saldo * tasaInteres;
+            double principal = cuotaMensual - interes;
+            saldo -= principal;
+            cout << "Mes " << i << ": Pago: " << cuotaMensual 
+                << ", Interes: " << interes 
+                << ", Principal: " << principal 
+                << ", Saldo restante: " << saldo << endl;
+        }
+    } else if (opcion == 2) {
+        // Imprimir los tipos de préstamos disponibles
+        const char *sqlTiposPrestamo = "SELECT ID_TIPO, TIPO, TASA_INTERES, PLAZO_MESES FROM TIPOS_PRESTAMO";
+        sqlite3_stmt *stmtTipos;
+
+        if (sqlite3_prepare_v2(db, sqlTiposPrestamo, -1, &stmtTipos, 0) != SQLITE_OK) {
+            cerr << "No se pudo preparar la consulta para tipos de préstamo: " << sqlite3_errmsg(db) << endl;
+            return;
+        }
+
+        cout << "Tipos de préstamo disponibles:" << endl;
+        while (sqlite3_step(stmtTipos) == SQLITE_ROW) {
+            int idTipo = sqlite3_column_int(stmtTipos, 0);
+            const unsigned char* tipo = sqlite3_column_text(stmtTipos, 1);
+            double tasaInteres = sqlite3_column_double(stmtTipos, 2);
+            int plazoMeses = sqlite3_column_int(stmtTipos, 3);
+            cout << "ID Tipo: " << idTipo << ", Tipo: " << tipo 
+                << ", Tasa de Interes: " << tasaInteres << "%, Plazo: " << plazoMeses << " meses" << endl;
+        }
+
+        sqlite3_finalize(stmtTipos);
+
+        // Solicitar el tipo de ID del préstamo
+        int tipoId;
+        cout << "Ingrese el ID del tipo de préstamo que desea calcular: ";
+        cin >> tipoId;
+
+        // Obtener los datos del tipo de préstamo seleccionado
+        const char *sqlTipoSeleccionado = "SELECT TIPO, TASA_INTERES, PLAZO_MESES FROM TIPOS_PRESTAMO WHERE ID_TIPO = ?";
+        sqlite3_stmt *stmtTipoSeleccionado;
+
+        if (sqlite3_prepare_v2(db, sqlTipoSeleccionado, -1, &stmtTipoSeleccionado, 0) != SQLITE_OK) {
+            cerr << "No se pudo preparar la consulta para el tipo de préstamo seleccionado: " << sqlite3_errmsg(db) << endl;
+            return;
+        }
+
+        sqlite3_bind_int(stmtTipoSeleccionado, 1, tipoId);
+
+        string tipoPrestamo;
+        double tasaInteres;
+        int plazoMeses;
+        if (sqlite3_step(stmtTipoSeleccionado) == SQLITE_ROW) {
+            tipoPrestamo = reinterpret_cast<const char*>(sqlite3_column_text(stmtTipoSeleccionado, 0));
+            tasaInteres = sqlite3_column_double(stmtTipoSeleccionado, 1);
+            plazoMeses = sqlite3_column_int(stmtTipoSeleccionado, 2);
+        } else {
+            cerr << "Tipo de préstamo no encontrado." << endl;
+            sqlite3_finalize(stmtTipoSeleccionado);
+            return;
+        }
+        sqlite3_finalize(stmtTipoSeleccionado);
+
+        // Solicitar la moneda y el monto del préstamo
+        string moneda;
+        double monto;
+
+        cout << "Ingrese la moneda del préstamo: ";
+        cin >> moneda;
+        cout << "Ingrese el monto del préstamo: ";
+        cin >> monto;
+
+        // Calcular la cuota mensual y la tabla de pagos
+        tasaInteres = tasaInteres / 100 / 12; // Convertir tasa anual a mensual
+        double cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazoMeses));
+
+        cout << "Cuota mensual: " << cuotaMensual << endl;
+        cout << "Tabla de pagos esperados:" << endl;
+
+        double saldo = monto;
+        for (int i = 1; i <= plazoMeses; ++i) {
+            double interes = saldo * tasaInteres;
+            double principal = cuotaMensual - interes;
+            saldo -= principal;
+            cout << "Mes " << i << ": Pago: " << cuotaMensual 
+                << ", Interes: " << interes 
+                << ", Principal: " << principal 
+                << ", Saldo restante: " << saldo << endl;
+        }
+    } else {
+        cerr << "Opción no válida. Por favor, intente de nuevo." << endl;
     }
 }
 
@@ -1541,7 +1629,7 @@ int main(int argc, char* argv[]) {
                             verInformacionPrestamos(db);
                             break;
                         case 2:
-                            calcularTablaPagos();
+                            calcularTablaPagos(db);
                             break;
                         case 3:
                             agregarTipoPrestamo(db);

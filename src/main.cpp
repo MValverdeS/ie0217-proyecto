@@ -115,6 +115,18 @@ void registrarTransaccion(sqlite3* db, int idCuenta, const char* tipoTransaccion
     sqlite3_finalize(stmt);
 }
 
+double convertirMoneda(double monto, const string& monedaOrigen, const string& monedaDestino) {
+    const double dolarAColones = 532.0;
+    const double colonesADolar = 518.0;
+
+    if ((monedaOrigen == "dolares" || monedaOrigen == "Dolares") && (monedaDestino == "colones" || monedaDestino == "Colones")) {
+        return monto * dolarAColones;
+    } else if ((monedaOrigen == "colones" || monedaOrigen == "Colones") && (monedaDestino == "dolares" || monedaDestino == "Dolares")) {
+        return monto / colonesADolar;
+    }
+    return monto; // Si las monedas son iguales, no hay conversión
+}
+
 void verTransacciones(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -150,12 +162,50 @@ void realizarDeposito(sqlite3* db) {
     cin >> idCliente;
 
     int idCuenta;
-    double monto;
     cout << "Ingrese el ID de la cuenta en la que desea realizar el deposito: ";
     cin >> idCuenta;
-    cout << "Ingrese el monto a depositar: ";
-    cin >> monto;
 
+    // Verificar el tipo de moneda de la cuenta
+    string tipoCuenta;
+    const char *sqlTipoCuenta = "SELECT TIPO FROM CUENTAS WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtTipoCuenta;
+
+    if (sqlite3_prepare_v2(db, sqlTipoCuenta, -1, &stmtTipoCuenta, 0) == SQLITE_OK) {
+        sqlite3_bind_int(stmtTipoCuenta, 1, idCuenta);
+        sqlite3_bind_int(stmtTipoCuenta, 2, idCliente);
+
+        if (sqlite3_step(stmtTipoCuenta) == SQLITE_ROW) {
+            tipoCuenta = reinterpret_cast<const char*>(sqlite3_column_text(stmtTipoCuenta, 0));
+            cout << "La cuenta es en " << tipoCuenta << "." << endl;
+        } else {
+            cerr << "Cuenta no encontrada para el cliente proporcionado." << endl;
+            sqlite3_finalize(stmtTipoCuenta);
+            return;
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta para verificar el tipo de cuenta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtTipoCuenta);
+        return;
+    }
+    sqlite3_finalize(stmtTipoCuenta);
+
+    // Solicitar la moneda en la que se realizará el depósito
+    string monedaDeposito;
+    cout << "Desea realizar el deposito en (colones/dolares): ";
+    cin >> monedaDeposito;
+
+    double monto;
+    double monto1;
+    cout << "Ingrese el monto a depositar en " << monedaDeposito << ": ";
+    cin >> monto1;
+
+    // Convertir el monto si es necesario
+    if (tipoCuenta != monedaDeposito) {
+        monto = convertirMoneda(monto1, monedaDeposito, tipoCuenta);
+        cout << "El monto convertido a " << tipoCuenta << " es: " << monto << endl;
+    }
+
+    // Actualizar el monto en la cuenta
     const char *sql = "UPDATE CUENTAS SET MONTO = MONTO + ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
     sqlite3_stmt *stmt;
 
@@ -172,7 +222,46 @@ void realizarDeposito(sqlite3* db) {
         cerr << "No se pudo realizar el deposito: " << sqlite3_errmsg(db) << endl;
     } else {
         cout << "Deposito realizado con exito." << endl;
-        registrarTransaccion(db, idCuenta, "Deposito", monto);
+
+        // Obtener el nuevo ID de transacción
+        int nuevoIdTransaccion = 0;
+        const char *sqlUltimaTransaccion = "SELECT MAX(ID_TRANSACCION) FROM TRANSACCIONES";
+        sqlite3_stmt *stmtUltimaTransaccion;
+
+        if (sqlite3_prepare_v2(db, sqlUltimaTransaccion, -1, &stmtUltimaTransaccion, 0) == SQLITE_OK) {
+            if (sqlite3_step(stmtUltimaTransaccion) == SQLITE_ROW) {
+                nuevoIdTransaccion = sqlite3_column_int(stmtUltimaTransaccion, 0) + 1;
+            } else {
+                nuevoIdTransaccion = 1; // Primera transacción si no hay ninguna
+            }
+        } else {
+            cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+            sqlite3_finalize(stmtUltimaTransaccion);
+            return;
+        }
+        sqlite3_finalize(stmtUltimaTransaccion);
+
+        // Registrar la transacción
+        const char *sqlRegistrarTransaccion = "INSERT INTO TRANSACCIONES (ID_TRANSACCION, ID_CUENTA, ID_CUENTA_DESTINO, TIPO_TRANSACCION, MONTO, FECHA_TRANSACCION) VALUES (?, ?, ?, ?, ?, datetime('now'))";
+        sqlite3_stmt *stmtRegistrarTransaccion;
+
+        if (sqlite3_prepare_v2(db, sqlRegistrarTransaccion, -1, &stmtRegistrarTransaccion, 0) == SQLITE_OK) {
+            sqlite3_bind_int(stmtRegistrarTransaccion, 1, nuevoIdTransaccion);
+            sqlite3_bind_int(stmtRegistrarTransaccion, 2, idCuenta);
+            sqlite3_bind_int(stmtRegistrarTransaccion, 3, idCuenta); // Para depósitos, ID_CUENTA y ID_CUENTA_DESTINO son iguales
+            sqlite3_bind_text(stmtRegistrarTransaccion, 4, "Deposito", -1, SQLITE_STATIC);
+            sqlite3_bind_double(stmtRegistrarTransaccion, 5, monto);
+
+            if (sqlite3_step(stmtRegistrarTransaccion) != SQLITE_DONE) {
+                cerr << "No se pudo registrar la transaccion: " << sqlite3_errmsg(db) << endl;
+            } else {
+                cout << "Transaccion registrada con exito. El ID de la transaccion es " << nuevoIdTransaccion << "." << endl;
+            }
+        } else {
+            cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        }
+
+        sqlite3_finalize(stmtRegistrarTransaccion);
     }
 
     sqlite3_finalize(stmt);

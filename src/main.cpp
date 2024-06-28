@@ -33,7 +33,8 @@ void menuAtencionClientes() {
     cout << "6. CDP" << endl;
     cout << "7. Ver Transacciones" << endl;
     cout << "8. Agregar Cliente" << endl;
-    cout << "9. Salir" << endl;
+    cout << "9. Crear Cuenta" << endl;
+    cout << "10. Salir" << endl;
 }
 
 void menuInformacionPrestamos() {
@@ -62,7 +63,10 @@ void menuCDP() {
 
 }
 
-void verCuentas(sqlite3* db, int idCliente) {
+void verCuentas(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
     const char *sql = "SELECT * FROM CUENTAS WHERE ID_CLIENTE = ?";
     sqlite3_stmt *stmt;
     
@@ -111,7 +115,10 @@ void registrarTransaccion(sqlite3* db, int idCuenta, const char* tipoTransaccion
     sqlite3_finalize(stmt);
 }
 
-void verTransacciones(sqlite3* db, int idCliente) {
+void verTransacciones(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
     const char *sql = "SELECT * FROM TRANSACCIONES WHERE ID_CUENTA IN (SELECT ID_CUENTA FROM CUENTAS WHERE ID_CLIENTE = ?)";
     sqlite3_stmt *stmt;
 
@@ -137,7 +144,11 @@ void verTransacciones(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
-void realizarDeposito(sqlite3* db, int idCliente) {
+void realizarDeposito(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idCuenta;
     double monto;
     cout << "Ingrese el ID de la cuenta en la que desea realizar el deposito: ";
@@ -167,7 +178,11 @@ void realizarDeposito(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
-void crearCDP(sqlite3* db, int idCliente) {
+void crearCDP(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idCDP;
     double monto, interes;
     string fechaInicial, fechaVencimiento;
@@ -209,7 +224,11 @@ void crearCDP(sqlite3* db, int idCliente) {
 }
 
 
-void verCDP(sqlite3* db, int idCliente) {
+void verCDP(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     const char *sql = "SELECT * FROM INFO_CDP WHERE ID_CLIENTE = ?";
     sqlite3_stmt *stmt;
 
@@ -233,7 +252,11 @@ void verCDP(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
-void eliminarCDP(sqlite3* db, int idCliente) {
+void eliminarCDP(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idCDP;
     cout << "Ingrese el ID del CDP que desea eliminar: ";
     cin >> idCDP;
@@ -258,7 +281,11 @@ void eliminarCDP(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
-void realizarRetiro(sqlite3* db, int idCliente) {
+void realizarRetiro(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idCuenta;
     double monto;
     cout << "Ingrese el ID de la cuenta desde la que desea realizar el retiro: ";
@@ -314,7 +341,11 @@ void realizarRetiro(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
-void realizarTransferencia(sqlite3* db, int idCliente) {
+void realizarTransferencia(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idCuentaOrigen, idCuentaDestino;
     double monto;
     cout << "Ingrese el ID de la cuenta desde la que desea transferir: ";
@@ -449,7 +480,11 @@ void calcularTablaPagos() {
     }
 }
 
-void solicitarPrestamo(sqlite3* db, int idCliente) {
+void solicitarPrestamo(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idPrestamo, plazo;
     double monto, tasaInteres, cuotaMensual;
     string tipoPrestamo, moneda;
@@ -497,7 +532,11 @@ void solicitarPrestamo(sqlite3* db, int idCliente) {
     sqlite3_finalize(stmt);
 }
 
-void verPrestamos(sqlite3* db, int idCliente) {
+void verPrestamos(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     const char *sql = "SELECT * FROM INFO_PRESTAMOS WHERE ID_CLIENTE = ?";
     sqlite3_stmt *stmt;
     
@@ -526,7 +565,11 @@ void verPrestamos(sqlite3* db, int idCliente) {
 }
 
 
-void generarReportePrestamos(sqlite3* db, int idCliente) {
+void generarReportePrestamos(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     const char *sql = "SELECT * FROM INFO_PRESTAMOS WHERE ID_CLIENTE = ?";
     sqlite3_stmt *stmt;
     ofstream reporte("reporte_prestamos.txt");
@@ -562,7 +605,11 @@ void generarReportePrestamos(sqlite3* db, int idCliente) {
     cout << "Reporte de prestamos generado con exito en 'reporte_prestamos.txt'." << endl;
 }
 
-void pagarPrestamo(sqlite3* db, int idCliente) {
+void pagarPrestamo(sqlite3* db) {
+    int idCliente;
+    cout << "Ingrese el ID del Cliente: ";
+    cin >> idCliente;
+
     int idPrestamo;
     double montoPago, pagoCapital, pagoInteres;
 
@@ -708,6 +755,111 @@ void agregarTipoPrestamo(sqlite3* db) {
 
     sqlite3_finalize(stmt);
 }
+
+void crearCuenta(sqlite3* db) {
+    int cedula;
+    cout << "Ingrese la cedula del Cliente: ";
+    cin >> cedula;
+
+    // Buscar el ID del cliente usando la cedula
+    int idCliente = -1;
+    const char *sqlBuscarCliente = "SELECT IDCLIENTE FROM INFOCLIENTES WHERE CEDULA = ?";
+    sqlite3_stmt *stmtBuscarCliente;
+
+    if (sqlite3_prepare_v2(db, sqlBuscarCliente, -1, &stmtBuscarCliente, 0) == SQLITE_OK) {
+        sqlite3_bind_int(stmtBuscarCliente, 1, cedula);
+
+        if (sqlite3_step(stmtBuscarCliente) == SQLITE_ROW) {
+            idCliente = sqlite3_column_int(stmtBuscarCliente, 0);
+        } else {
+            cerr << "Cliente no encontrado." << endl;
+            sqlite3_finalize(stmtBuscarCliente);
+            return;
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+    sqlite3_finalize(stmtBuscarCliente);
+
+    // Verificar cuántas cuentas tiene el cliente
+    const char *sqlContarCuentas = "SELECT COUNT(*) FROM CUENTAS WHERE ID_CLIENTE = ?";
+    sqlite3_stmt *stmtContarCuentas;
+    int cuentaCount = 0;
+
+    if (sqlite3_prepare_v2(db, sqlContarCuentas, -1, &stmtContarCuentas, 0) == SQLITE_OK) {
+        sqlite3_bind_int(stmtContarCuentas, 1, idCliente);
+
+        if (sqlite3_step(stmtContarCuentas) == SQLITE_ROW) {
+            cuentaCount = sqlite3_column_int(stmtContarCuentas, 0);
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtContarCuentas);
+        return;
+    }
+    sqlite3_finalize(stmtContarCuentas);
+
+    if (cuentaCount >= 2) {
+        cerr << "El cliente ya tiene el máximo número de cuentas permitidas." << endl;
+        return;
+    }
+
+    // Obtener el nuevo ID de cuenta
+    int nuevoIdCuenta = 0;
+    const char *sqlUltimaCuenta = "SELECT MAX(ID_CUENTA) FROM CUENTAS";
+    sqlite3_stmt *stmtUltimaCuenta;
+
+    if (sqlite3_prepare_v2(db, sqlUltimaCuenta, -1, &stmtUltimaCuenta, 0) == SQLITE_OK) {
+        if (sqlite3_step(stmtUltimaCuenta) == SQLITE_ROW) {
+            nuevoIdCuenta = sqlite3_column_int(stmtUltimaCuenta, 0) + 1;
+        } else {
+            nuevoIdCuenta = 1; // Primera cuenta si no hay ninguna
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtUltimaCuenta);
+        return;
+    }
+    sqlite3_finalize(stmtUltimaCuenta);
+
+    // Solicitar tipo de cuenta (dólares o colones)
+    string tipoCuenta;
+    cout << "Ingrese el tipo de cuenta (Dolares/Colones): ";
+    cin >> tipoCuenta;
+
+    if (tipoCuenta != "Dolares" && tipoCuenta != "Colones") {
+        cerr << "Tipo de cuenta no válido." << endl;
+        return;
+    }
+
+    // Solicitar monto inicial
+    double montoInicial;
+    cout << "Ingrese el monto inicial para la cuenta en " << tipoCuenta << ": ";
+    cin >> montoInicial;
+
+    // Crear la cuenta
+    const char *sqlCrearCuenta = "INSERT INTO CUENTAS (ID_CUENTA, ID_CLIENTE, TIPO, MONTO) VALUES (?, ?, ?, ?)";
+    sqlite3_stmt *stmtCrearCuenta;
+
+    if (sqlite3_prepare_v2(db, sqlCrearCuenta, -1, &stmtCrearCuenta, 0) == SQLITE_OK) {
+        sqlite3_bind_int(stmtCrearCuenta, 1, nuevoIdCuenta);
+        sqlite3_bind_int(stmtCrearCuenta, 2, idCliente);
+        sqlite3_bind_text(stmtCrearCuenta, 3, tipoCuenta.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_double(stmtCrearCuenta, 4, montoInicial);
+
+        if (sqlite3_step(stmtCrearCuenta) == SQLITE_DONE) {
+            cout << "Cuenta creada con éxito, su cuenta en " << tipoCuenta << " tiene el siguiente ID: " << nuevoIdCuenta << endl;
+        } else {
+            cerr << "No se pudo crear la cuenta: " << sqlite3_errmsg(db) << endl;
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+    }
+
+    sqlite3_finalize(stmtCrearCuenta);
+}
+
 
 
 int main(int argc, char* argv[]) {
@@ -863,24 +1015,22 @@ int main(int argc, char* argv[]) {
         switch (opcion) {
             case 1:
                 cout << "Modo de atencion a clientes seleccionado" << endl;
-                cout << "Ingrese su ID de Cliente: ";
-                cin >> idCliente;
                 opcionCliente = 0;
-                while (opcionCliente != 9) {
+                while (opcionCliente != 10) {
                     menuAtencionClientes();
                     cin >> opcionCliente;
                     switch (opcionCliente) {
                         case 1:
-                            verCuentas(db, idCliente);
+                            verCuentas(db);
                             break;
                         case 2:
-                            realizarDeposito(db, idCliente);
+                            realizarDeposito(db);
                             break;
                         case 3:
-                            realizarRetiro(db, idCliente);
+                            realizarRetiro(db);
                             break;
                         case 4:
-                            realizarTransferencia(db, idCliente);
+                            realizarTransferencia(db);
                             break;
                         case 5:{
                             int opcionPrestamos = 0;
@@ -889,16 +1039,16 @@ int main(int argc, char* argv[]) {
                                 cin >> opcionPrestamos;
                                 switch (opcionPrestamos) {
                                     case 1:
-                                        solicitarPrestamo(db, idCliente);
+                                        solicitarPrestamo(db);
                                         break;
                                     case 2:
-                                        verPrestamos(db, idCliente);
+                                        verPrestamos(db);
                                         break;
                                     case 3:
-                                        generarReportePrestamos(db, idCliente);
+                                        generarReportePrestamos(db);
                                         break;
                                     case 4:
-                                        pagarPrestamo(db, idCliente);
+                                        pagarPrestamo(db);
                                         break;
                                     case 5:
                                         cout << "Saliendo del menu de prestamos..." << endl;
@@ -919,13 +1069,13 @@ int main(int argc, char* argv[]) {
                                 switch (opcionCDP) 
                                 {
                                     case 1:
-                                        crearCDP(db, idCliente);
+                                        crearCDP(db);
                                         break;
                                     case 2:
-                                        verCDP(db, idCliente);
+                                        verCDP(db);
                                         break;
                                     case 3:
-                                        eliminarCDP(db, idCliente);
+                                        eliminarCDP(db);
                                         break;
                                     case 4:
                                         cout << "Saliendo del menu de CDP..." << endl;
@@ -938,12 +1088,15 @@ int main(int argc, char* argv[]) {
                         }
 
                         case 7:
-                            verTransacciones(db, idCliente);
+                            verTransacciones(db);
                             break;
                         case 8:
                             agregarCliente(db);
                             break;
                         case 9:
+                            crearCuenta(db);
+                            break;
+                        case 10:
                             cout << "Saliendo del menu de atencion a clientes..." << endl;
                             break;
                         default:

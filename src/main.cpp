@@ -1031,8 +1031,31 @@ void pagarPrestamo(sqlite3* db) {
     cout << "Ingrese el ID del Cliente: ";
     cin >> idCliente;
 
+    // Verificar que el cliente exista
+    const char *sqlVerificarCliente = "SELECT COUNT(*) FROM INFOCLIENTES WHERE IDCLIENTE = ?";
+    sqlite3_stmt *stmtVerificarCliente;
+
+    if (sqlite3_prepare_v2(db, sqlVerificarCliente, -1, &stmtVerificarCliente, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta para verificar el cliente: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtVerificarCliente, 1, idCliente);
+
+    int clienteExiste = 0;
+    if (sqlite3_step(stmtVerificarCliente) == SQLITE_ROW) {
+        clienteExiste = sqlite3_column_int(stmtVerificarCliente, 0);
+    }
+    sqlite3_finalize(stmtVerificarCliente);
+
+    if (clienteExiste == 0) {
+        cout << "El cliente no existe." << endl;
+        return;
+    }
+
     int idPrestamo;
     double montoPago;
+    double montoPagoOriginal;
 
     cout << "Ingrese el ID del prestamo que desea pagar: ";
     cin >> idPrestamo;
@@ -1094,6 +1117,7 @@ void pagarPrestamo(sqlite3* db) {
 
     cout << "Ingrese el monto a pagar en " << monedaCuenta << ": ";
     cin >> montoPago;
+    montoPagoOriginal = montoPago;
 
     if (saldoCuenta < montoPago) {
         cerr << "Saldo insuficiente en la cuenta." << endl;
@@ -1135,7 +1159,7 @@ void pagarPrestamo(sqlite3* db) {
     sqlite3_finalize(stmtActualizar);
 
     // Actualizar el saldo de la cuenta
-    const char *sqlActualizarCuenta = "UPDATE CUENTAS SET MONTO = ? - MONTO WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    const char *sqlActualizarCuenta = "UPDATE CUENTAS SET MONTO = MONTO - ? WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
     sqlite3_stmt *stmtActualizarCuenta;
 
     if (sqlite3_prepare_v2(db, sqlActualizarCuenta, -1, &stmtActualizarCuenta, 0) != SQLITE_OK) {
@@ -1143,7 +1167,7 @@ void pagarPrestamo(sqlite3* db) {
         return;
     }
 
-    sqlite3_bind_double(stmtActualizarCuenta, 1, montoPago);
+    sqlite3_bind_double(stmtActualizarCuenta, 1, montoPagoOriginal);
     sqlite3_bind_int(stmtActualizarCuenta, 2, idCuenta);
     sqlite3_bind_int(stmtActualizarCuenta, 3, idCliente);
 

@@ -944,15 +944,13 @@ void pagarPrestamo(sqlite3* db) {
     cin >> idCliente;
 
     int idPrestamo;
-    double montoPago, pagoCapital, pagoInteres;
+    double montoPago;
 
     cout << "Ingrese el ID del prestamo que desea pagar: ";
     cin >> idPrestamo;
-    cout << "Ingrese el monto a pagar: ";
-    cin >> montoPago;
 
     // Obtener información del préstamo
-    const char *sqlInfoPrestamo = "SELECT MONTO, TASA_INTERES, PLAZO FROM INFO_PRESTAMOS WHERE ID_PRESTAMO = ? AND ID_CLIENTE = ?";
+    const char *sqlInfoPrestamo = "SELECT MONTO, TASA_INTERES, PLAZO, MONEDA FROM INFO_PRESTAMOS WHERE ID_PRESTAMO = ? AND ID_CLIENTE = ?";
     sqlite3_stmt *stmtInfo;
     if (sqlite3_prepare_v2(db, sqlInfoPrestamo, -1, &stmtInfo, 0) != SQLITE_OK) {
         cerr << "No se pudo preparar la consulta de información del préstamo: " << sqlite3_errmsg(db) << endl;
@@ -963,10 +961,13 @@ void pagarPrestamo(sqlite3* db) {
 
     double montoRestante, tasaInteres;
     int plazo;
+    string monedaPrestamo;
     if (sqlite3_step(stmtInfo) == SQLITE_ROW) {
         montoRestante = sqlite3_column_double(stmtInfo, 0);
         tasaInteres = sqlite3_column_double(stmtInfo, 1);
         plazo = sqlite3_column_int(stmtInfo, 2);
+        monedaPrestamo = reinterpret_cast<const char*>(sqlite3_column_text(stmtInfo, 3));
+        cout << "El préstamo está en " << monedaPrestamo << "." << endl;
     } else {
         cerr << "Préstamo no encontrado." << endl;
         sqlite3_finalize(stmtInfo);
@@ -974,9 +975,57 @@ void pagarPrestamo(sqlite3* db) {
     }
     sqlite3_finalize(stmtInfo);
 
-    // Calcular los pagos de capital e interés
-    pagoInteres = montoRestante * (tasaInteres / 100 / 12);
-    pagoCapital = montoPago - pagoInteres;
+    // Solicitar ID de la cuenta para el pago y verificar que pertenezca al cliente
+    int idCuenta;
+    cout << "Ingrese el ID de la cuenta con la que desea pagar: ";
+    cin >> idCuenta;
+
+    const char *verificarCuentaSql = "SELECT TIPO, MONTO FROM CUENTAS WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtVerificarCuenta;
+
+    if (sqlite3_prepare_v2(db, verificarCuentaSql, -1, &stmtVerificarCuenta, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de verificación de cuenta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtVerificarCuenta, 1, idCuenta);
+    sqlite3_bind_int(stmtVerificarCuenta, 2, idCliente);
+
+    string monedaCuenta;
+    double saldoCuenta;
+    if (sqlite3_step(stmtVerificarCuenta) == SQLITE_ROW) {
+        monedaCuenta = reinterpret_cast<const char*>(sqlite3_column_text(stmtVerificarCuenta, 0));
+        saldoCuenta = sqlite3_column_double(stmtVerificarCuenta, 1);
+        cout << "La cuenta está en " << monedaCuenta << "." << endl;
+    } else {
+        cerr << "Cuenta no encontrada o no pertenece al cliente." << endl;
+        sqlite3_finalize(stmtVerificarCuenta);
+        return;
+    }
+    sqlite3_finalize(stmtVerificarCuenta);
+
+    cout << "Ingrese el monto a pagar en " << monedaCuenta << ": ";
+    cin >> montoPago;
+
+    if (saldoCuenta < montoPago) {
+        cerr << "Saldo insuficiente en la cuenta." << endl;
+        return;
+    }
+
+    // Convertir monto si las monedas son diferentes
+    if (monedaPrestamo != monedaCuenta) {
+        montoPago = convertirMoneda(montoPago, monedaCuenta, monedaPrestamo);
+    }
+
+    // Verificar que el monto a pagar es suficiente para la cuota
+    double pagoInteres = montoRestante * (tasaInteres / 100 / 12);
+    double pagoCapital = montoPago - pagoInteres;
+
+    if (pagoCapital <= 0) {
+        cerr << "El monto ingresado no es suficiente para cubrir los intereses del préstamo." << endl;
+        return;
+    }
+
     montoRestante -= pagoCapital;
 
     // Actualizar el monto del préstamo
@@ -992,27 +1041,70 @@ void pagarPrestamo(sqlite3* db) {
 
     if (sqlite3_step(stmtActualizar) != SQLITE_DONE) {
         cerr << "No se pudo actualizar el préstamo: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtActualizar);
+        return;
     }
     sqlite3_finalize(stmtActualizar);
 
+    // Actualizar el saldo de la cuenta
+    const char *sqlActualizarCuenta = "UPDATE CUENTAS SET MONTO = ? - MONTO WHERE ID_CUENTA = ? AND ID_CLIENTE = ?";
+    sqlite3_stmt *stmtActualizarCuenta;
+
+    if (sqlite3_prepare_v2(db, sqlActualizarCuenta, -1, &stmtActualizarCuenta, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de actualización de la cuenta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_double(stmtActualizarCuenta, 1, montoPago);
+    sqlite3_bind_int(stmtActualizarCuenta, 2, idCuenta);
+    sqlite3_bind_int(stmtActualizarCuenta, 3, idCliente);
+
+    if (sqlite3_step(stmtActualizarCuenta) != SQLITE_DONE) {
+        cerr << "No se pudo actualizar el saldo de la cuenta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtActualizarCuenta);
+        return;
+    }
+    sqlite3_finalize(stmtActualizarCuenta);
+
+    // Generar automáticamente el ID del pago
+    int idPago = 0;
+    const char *sqlUltimoPago = "SELECT MAX(ID_PAGO) FROM PAGO_PRESTAMOS";
+    sqlite3_stmt *stmtUltimoPago;
+
+    if (sqlite3_prepare_v2(db, sqlUltimoPago, -1, &stmtUltimoPago, 0) == SQLITE_OK) {
+        if (sqlite3_step(stmtUltimoPago) == SQLITE_ROW) {
+            idPago = sqlite3_column_int(stmtUltimoPago, 0) + 1;
+        } else {
+            idPago = 1; // Primer pago si no hay ninguno
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta para obtener el ID del último pago: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtUltimoPago);
+        return;
+    }
+    sqlite3_finalize(stmtUltimoPago);
+
     // Registrar el pago en la tabla de pagos
-    const char *sqlRegistrarPago = "INSERT INTO PAGO_PRESTAMOS (ID_PRESTAMO, MONTO, PAGO_CAPITAL, PAGO_INTERES, FECHA_PAGO) "
-                                   "VALUES (?, ?, ?, ?, datetime('now'))";
+    const char *sqlRegistrarPago = "INSERT INTO PAGO_PRESTAMOS (ID_PAGO, ID_PRESTAMO, MONTO, PAGO_CAPITAL, PAGO_INTERES, FECHA_PAGO) "
+                                   "VALUES (?, ?, ?, ?, ?, datetime('now'))";
     sqlite3_stmt *stmtPago;
     if (sqlite3_prepare_v2(db, sqlRegistrarPago, -1, &stmtPago, 0) != SQLITE_OK) {
         cerr << "No se pudo preparar la consulta de registro de pago: " << sqlite3_errmsg(db) << endl;
         return;
     }
-    sqlite3_bind_int(stmtPago, 1, idPrestamo);
-    sqlite3_bind_double(stmtPago, 2, montoPago);
-    sqlite3_bind_double(stmtPago, 3, pagoCapital);
-    sqlite3_bind_double(stmtPago, 4, pagoInteres);
+
+    sqlite3_bind_int(stmtPago, 1, idPago);
+    sqlite3_bind_int(stmtPago, 2, idPrestamo);
+    sqlite3_bind_double(stmtPago, 3, montoPago);
+    sqlite3_bind_double(stmtPago, 4, pagoCapital);
+    sqlite3_bind_double(stmtPago, 5, pagoInteres);
 
     if (sqlite3_step(stmtPago) != SQLITE_DONE) {
         cerr << "No se pudo registrar el pago: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtPago);
+        return;
     } else {
-        cout << "Pago del préstamo realizado con éxito." << endl;
-        registrarTransaccion(db, idCliente, "Pago de Prestamo", montoPago, idPrestamo);
+        cout << "Pago del préstamo " << idPrestamo << " realizado con éxito. El ID de su pago de préstamo es " << idPago << "." << endl;
     }
 
     sqlite3_finalize(stmtPago);

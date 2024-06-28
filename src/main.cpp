@@ -694,33 +694,131 @@ void calcularTablaPagos() {
     }
 }
 
+void imprimirTiposPrestamo(sqlite3* db) {
+    const char *sql = "SELECT * FROM TIPOS_PRESTAMO";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    cout << "Tipos de Prestamos Disponibles:" << endl;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idTipo = sqlite3_column_int(stmt, 0);
+        const char* tipo = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        double tasaInteres = sqlite3_column_double(stmt, 2);
+        int plazoMeses = sqlite3_column_int(stmt, 3);
+        cout << "ID Tipo: " << idTipo << ", Tipo: " << tipo 
+             << ", Tasa de Interes: " << tasaInteres << "%, Plazo: " << plazoMeses << " meses" << endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+string mayusculaLetra1(const string& str) {
+    if (str.empty()) {
+        return str;
+    }
+    
+    string resultado = str;
+    resultado[0] = toupper(resultado[0]);
+    return resultado;
+}
+
 void solicitarPrestamo(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
     cin >> idCliente;
 
-    int idPrestamo, plazo;
-    double monto, tasaInteres, cuotaMensual;
-    string tipoPrestamo, moneda;
+    // Imprimir tipos de prestamo disponibles
+    imprimirTiposPrestamo(db);
 
-    cout << "Ingrese el ID del prestamo: ";
-    cin >> idPrestamo;
-    cout << "Ingrese el tipo de prestamo: ";
-    cin >> tipoPrestamo;
+    // Solicitar y verificar el tipo de prestamo
+    int tipoId;
+    cout << "Ingrese el ID del tipo de prestamo: ";
+    cin >> tipoId;
+
+    const char *verificarTipoSql = "SELECT TIPO, TASA_INTERES, PLAZO_MESES FROM TIPOS_PRESTAMO WHERE ID_TIPO = ?";
+    sqlite3_stmt *stmtVerificarTipo;
+
+    if (sqlite3_prepare_v2(db, verificarTipoSql, -1, &stmtVerificarTipo, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtVerificarTipo, 1, tipoId);
+
+    string tipoPrestamo;
+    double tasaInteres;
+    int plazoMeses;
+    if (sqlite3_step(stmtVerificarTipo) == SQLITE_ROW) {
+        tipoPrestamo = reinterpret_cast<const char*>(sqlite3_column_text(stmtVerificarTipo, 0));
+        tasaInteres = sqlite3_column_double(stmtVerificarTipo, 1);
+        plazoMeses = sqlite3_column_int(stmtVerificarTipo, 2);
+    } else {
+        cerr << "Tipo de prestamo no encontrado." << endl;
+        sqlite3_finalize(stmtVerificarTipo);
+        return;
+    }
+    sqlite3_finalize(stmtVerificarTipo);
+
+    // Solicitar la moneda y el monto del prestamo
+    string moneda;
+    string moneda1;
+    double monto;
     cout << "Ingrese la moneda del prestamo: ";
     cin >> moneda;
     cout << "Ingrese el monto del prestamo: ";
     cin >> monto;
-    cout << "Ingrese la tasa de interes (en %): ";
-    cin >> tasaInteres;
-    cout << "Ingrese el plazo en meses: ";
-    cin >> plazo;
+    moneda1 = mayusculaLetra1(moneda);
+    // Verificar que el cliente tenga una cuenta en la moneda del prestamo
+    const char *verificarCuentaSql = "SELECT ID_CUENTA FROM CUENTAS WHERE ID_CLIENTE = ? AND TIPO = ?";
+    sqlite3_stmt *stmtVerificarCuenta;
 
+    if (sqlite3_prepare_v2(db, verificarCuentaSql, -1, &stmtVerificarCuenta, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtVerificarCuenta, 1, idCliente);
+    sqlite3_bind_text(stmtVerificarCuenta, 2, moneda1.c_str(), -1, SQLITE_STATIC);
+
+    int idCuenta = 0;
+    if (sqlite3_step(stmtVerificarCuenta) == SQLITE_ROW) {
+        idCuenta = sqlite3_column_int(stmtVerificarCuenta, 0);
+    } else {
+        cerr << "El cliente no tiene una cuenta en " << moneda << "." << endl;
+        sqlite3_finalize(stmtVerificarCuenta);
+        return;
+    }
+    sqlite3_finalize(stmtVerificarCuenta);
+
+    // Generar automaticamente el ID del prestamo
+    int idPrestamo = 0;
+    const char *sqlUltimoPrestamo = "SELECT MAX(ID_PRESTAMO) FROM INFO_PRESTAMOS";
+    sqlite3_stmt *stmtUltimoPrestamo;
+
+    if (sqlite3_prepare_v2(db, sqlUltimoPrestamo, -1, &stmtUltimoPrestamo, 0) == SQLITE_OK) {
+        if (sqlite3_step(stmtUltimoPrestamo) == SQLITE_ROW) {
+            idPrestamo = sqlite3_column_int(stmtUltimoPrestamo, 0) + 1;
+        } else {
+            idPrestamo = 1; // Primer prestamo si no hay ninguno
+        }
+    } else {
+        cerr << "No se pudo preparar la consulta para obtener el ID del ultimo prestamo: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtUltimoPrestamo);
+        return;
+    }
+    sqlite3_finalize(stmtUltimoPrestamo);
+
+    // Calcular la cuota mensual
     tasaInteres = tasaInteres / 100.0;
-    cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazo));
+    double cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazoMeses));
 
-    const char *sql = "INSERT INTO INFO_PRESTAMOS (ID_PRESTAMO, ID_CLIENTE, TIPO_PRESTAMO, MONEDA, MONTO, TASA_INTERES, PLAZO, CUOTA_MENSUAL) "
-                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Insertar el prestamo en la tabla INFO_PRESTAMOS
+    const char *sql = "INSERT INTO INFO_PRESTAMOS (ID_PRESTAMO, ID_CLIENTE, TIPO_ID, TIPO_PRESTAMO, MONEDA, MONTO, TASA_INTERES, PLAZO, CUOTA_MENSUAL) "
+                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
@@ -730,20 +828,41 @@ void solicitarPrestamo(sqlite3* db) {
 
     sqlite3_bind_int(stmt, 1, idPrestamo);
     sqlite3_bind_int(stmt, 2, idCliente);
-    sqlite3_bind_text(stmt, 3, tipoPrestamo.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 4, moneda.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_double(stmt, 5, monto);
-    sqlite3_bind_double(stmt, 6, tasaInteres);
-    sqlite3_bind_int(stmt, 7, plazo);
-    sqlite3_bind_double(stmt, 8, cuotaMensual);
+    sqlite3_bind_int(stmt, 3, tipoId);
+    sqlite3_bind_text(stmt, 4, tipoPrestamo.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 5, moneda.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_double(stmt, 6, monto);
+    sqlite3_bind_double(stmt, 7, tasaInteres);
+    sqlite3_bind_int(stmt, 8, plazoMeses);
+    sqlite3_bind_double(stmt, 9, cuotaMensual);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         cerr << "No se pudo insertar el prestamo: " << sqlite3_errmsg(db) << endl;
-    } else {
-        cout << "Prestamo solicitado con exito." << endl;
+        sqlite3_finalize(stmt);
+        return;
+    }
+    sqlite3_finalize(stmt);
+
+    // Actualizar el monto de la cuenta correspondiente
+    const char *sqlActualizarCuenta = "UPDATE CUENTAS SET MONTO = MONTO + ? WHERE ID_CUENTA = ?";
+    sqlite3_stmt *stmtActualizarCuenta;
+
+    if (sqlite3_prepare_v2(db, sqlActualizarCuenta, -1, &stmtActualizarCuenta, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta: " << sqlite3_errmsg(db) << endl;
+        return;
     }
 
-    sqlite3_finalize(stmt);
+    sqlite3_bind_double(stmtActualizarCuenta, 1, monto);
+    sqlite3_bind_int(stmtActualizarCuenta, 2, idCuenta);
+
+    if (sqlite3_step(stmtActualizarCuenta) != SQLITE_DONE) {
+        cerr << "No se pudo actualizar el monto de la cuenta: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmtActualizarCuenta);
+        return;
+    }
+    sqlite3_finalize(stmtActualizarCuenta);
+
+    cout << "El prestamo por " << monto << " en " << moneda << " fue realizado con exito. El ID de su prestamo es " << idPrestamo << "." << endl;
 }
 
 void verPrestamos(sqlite3* db) {

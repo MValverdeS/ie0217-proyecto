@@ -1,3 +1,17 @@
+/**
+ * @file  cuentas.cpp
+ * @brief Se definen las funciones asociadas con cuentas
+ *
+ * @author Gabriel González Rivera B93432
+ * @author Edgar Marcelo Valverde Solís C08089
+ * @author Daniel Rodríguez Rivas B96719
+ * @date 30/6/2024
+ * 
+ * Licencia: MIT
+ */
+
+
+
 #include <iostream>
 #include <sqlite3.h>
 #include "cuentas.hpp"
@@ -8,6 +22,10 @@
 
 using namespace std;
 
+/**
+ * @brief Crea una nueva cuenta para un cliente existente en la base de datos.
+ * @param db Puntero a la base de datos SQLite.
+ */
 void crearCuenta(sqlite3* db) {
     int cedula;
     cout << "Ingrese la cedula del Cliente: ";
@@ -144,6 +162,19 @@ void crearCuenta(sqlite3* db) {
 }
 
 
+
+/**
+* @brief Esta función le pide al operario del banco el id del cliente, posteriormente busca en la base de datos todas
+* las columnas de la tabla CUENTAS en donde ID_CLIENTE coincide con el valor introducido, esto mediante una consulta de sql
+* dentro de la función se declara un puntero *stmt que se usa para manejar la declaración preparada y se usa sqlite3_prepare_v2 para
+* para preparar la consulta y mostrar los mensajes de error posibles, se utiliza sqlite3_bind int para enlazar el valor de Idcliente con el 
+* el parámetro ?, posteriormente se utiliza un bucle while que itera sobre cada fila conseguida en la consulta mediante el uso de sqlite3_step
+* estos valores se imprimen en la consola y luego se utiliza sqlite3_finalize para terminar la declaración de sql.
+*
+* @param db corresponde a un puntero hacia una base de datos de sqlite3, en este caso se utilizará un puntero a la base de datos
+* correspondiente al proyecto
+*/
+
 void verCuentas(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -168,6 +199,20 @@ void verCuentas(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
+
+/**
+* @brief La función realizarDeposito es una función tipo void que se encarga de manejar la lógica detrás de
+* depósitos bancarios, se necesita que el usuario ingrese el id cliente y el id cuenta para hacer el depósito
+* se verifica el tipo de moneda de la cuenta con la variable tipoCuenta y se hace una consulta sql para seleccionar
+* la cuenta que corresponda con los valores introducidos, se guarda la moneda en la que se deposita en monedaDeposito
+* y se utiliza un bucle while para verificar si la entrada de moneda es válida, posteriormente se pide el monto que se guarda
+* en monto1 y si es necesario este se convierte con la función convertirMoneda, posteriormente se actualiza el monto en 
+* la cuenta utilizando una consulta sql y se registr la transacción en la tabla TRANSACCIONES.
+*
+*
+* @param db corresponde a un puntero hacia una base de datos de sqlite3, en este caso se utilizará un puntero a la base de datos
+* correspondiente al proyecto.
+*/
 void realizarDeposito(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -308,7 +353,21 @@ void realizarDeposito(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
-
+/**
+ * @brief La función realizarRetiro es una función tipo void que se encarga de manejar la lógica para realizar un 
+ * retiro bancario de la cuenta de un cliente específico. Requiere que el usuario ingrese el ID del cliente y el 
+ * ID de la cuenta desde la cual desea realizar el retiro.Primero, se solicita al usuario que ingrese el ID del cliente y 
+ * el ID de la cuenta. Luego, se verifica si la cuenta 
+ * pertenece al cliente mediante una consulta SQL que obtiene el saldo actual y el tipo de moneda de la cuenta. 
+ * Si la cuenta pertenece al cliente, se procede a solicitar el monto a retirar y se verifica si el saldo es suficiente.
+ * Si el saldo es suficiente, se actualiza el saldo de la cuenta mediante una consulta SQL. Después, se registra la 
+ * transacción de retiro en la tabla TRANSACCIONES, asegurándose de generar un nuevo ID de transacción.
+ * En caso de errores durante la preparación o ejecución de las consultas SQL, se muestra un mensaje de error 
+ * correspondiente.
+ *
+ * @param db Puntero a una base de datos de sqlite3, en este caso se utilizará un puntero a la base de datos 
+ * correspondiente al proyecto.
+ */
 void realizarRetiro(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -422,7 +481,22 @@ while (true) {
     sqlite3_finalize(stmtRegistrarTransaccion);
 }
 
-
+/**
+ * @brief La función realizarTransferencia permite al cliente realizar una transferencia bancaria desde su cuenta 
+ * de origen a otra cuenta destino. Requiere que el usuario ingrese su ID de cliente, así como los IDs de las cuentas 
+ * de origen y destino, y el monto a transferir.Primero, se verifica si la cuenta de origen pertenece al cliente mediante 
+ * una consulta SQL que obtiene el saldo y el tipo de moneda de la cuenta. Si la cuenta pertenece al cliente, se procede 
+ * a verificar la existencia de la cuenta destino ingresada por el usuario. Se solicita al usuario ingresar el monto a transferir, 
+ * asegurándose de que sea un número válido. Se verifica si el saldo de la cuenta de origen es suficiente para la transferencia.
+ * Si las cuentas de origen y destino tienen diferentes tipos de moneda, se realiza una conversión de moneda utilizando 
+ * una función auxiliar. Luego, se realiza la transferencia actualizando los saldos de las cuentas de origen y 
+ * destino mediante consultas SQL. Se registra la transacción en la tabla TRANSACCIONES, asegurándose de generar un nuevo ID de transacción.
+ * En caso de errores durante la preparación o ejecución de las consultas SQL, se muestra un mensaje de error 
+ * correspondiente y se cancela la operación.
+ * 
+ * @param db Puntero a la base de datos sqlite3 donde se almacenarán los datos y se realizarán las operaciones de 
+ * transferencia.
+ */
 void realizarTransferencia(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -589,6 +663,22 @@ void realizarTransferencia(sqlite3* db) {
 
     sqlite3_finalize(stmtRegistrarTransaccion);
 }
+
+
+
+
+
+/**
+* @brief función que realiza una consulta en sql en base a un id de cliente introducido de manera similar a las funciones anteriores para seleccionar y ver 
+* todas columnas de la tabla TRANSACCIONES donde ID_CUENTA  coincide con una subconsulta que selecciona todas cuentas
+* que se asocien con el ID_CLIENTE que se introuce, esto mediante los métodos anteriormente mencionados, se utiliza un bucle
+* while para iterar sobre las filas en la consulta y se almacenan los valores de las filas que coinciden, posteriormente estos
+* valores se imprimen en la consola.
+*
+*
+* @param db corresponde a un puntero hacia una base de datos de sqlite3, en este caso se utilizará un puntero a la base de datos
+* correspondiente al proyecto.
+*/
 
 
 void verTransacciones(sqlite3* db) {

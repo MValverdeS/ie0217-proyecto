@@ -1,3 +1,18 @@
+/**
+ * @file  clientes.cpp
+ * @brief Se definen las funciones asociadas con clientes
+ *
+ * @author Gabriel González Rivera B93432
+ * @author Edgar Marcelo Valverde Solís C08089
+ * @author Daniel Rodríguez Rivas B96719
+ * @date 30/6/2024
+ * 
+ * Licencia: MIT
+ */
+
+
+
+
 #include <iostream>
 #include <sqlite3.h>
 
@@ -8,6 +23,13 @@
 
 using namespace std;
 
+/**
+ * @brief Agrega un nuevo cliente a la base de datos.
+ * 
+ * Esta función permite al usuario ingresar los detalles de un nuevo cliente y lo agrega a la tabla `INFOCLIENTES` en la base de datos.
+ * 
+ * @param db Puntero a la base de datos SQLite.
+ */
 void agregarCliente(sqlite3* db) {
     int idCliente, cedula;
     string nombre, apellido;

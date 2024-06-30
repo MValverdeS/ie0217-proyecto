@@ -1,3 +1,17 @@
+/**
+ * @file  prestamos.cpp
+ * @brief Se definen las funciones asociadas con prestamos
+ *
+ * @author Gabriel González Rivera B93432
+ * @author Edgar Marcelo Valverde Solís C08089
+ * @author Daniel Rodríguez Rivas B96719
+ * @date 30/6/2024
+ * 
+ * Licencia: MIT
+ */
+
+
+
 #include <iostream>
 #include <cmath>
 #include <sqlite3.h>
@@ -7,6 +21,11 @@
 
 using namespace std;
 
+/**
+ * @brief Función para solicitar y procesar la solicitud de un préstamo.
+ *
+ * @param db Puntero a la base de datos SQLite.
+ */
 void solicitarPrestamo(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -177,7 +196,17 @@ while (true) {
     cout << "El prestamo por " << monto << " en " << moneda << " fue realizado con exito. El ID de su prestamo es " << idPrestamo << "." << endl;
 }
 
-
+/**
+ * @brief La función verInformacionPrestamos muestra en pantalla la información detallada de todos los tipos de préstamos 
+ * disponibles en la base de datos. Cada tipo de préstamo se muestra con su ID único, nombre del tipo, tasa de interés 
+ * aplicable en porcentaje y plazo en meses.Se ejecuta una consulta SQL para seleccionar todos los registros de la tabla 
+ * TIPOS_PRESTAMO. Para cada registro obtenido, se extraen y muestran los siguientes datos: ID del tipo de préstamo,
+ * Nombre del tipo de préstamo, Tasa de interés en formato porcentaje (%) y Plazo del préstamo en meses. Si la preparación de 
+ * la consulta SQL no es exitosa, se muestra un mensaje de error indicando el motivo y se termina la función. Cada tipo de préstamo 
+ * se muestra en una línea con un formato legible que incluye todos los detalles mencionados.
+ * 
+ * @param db Puntero a la base de datos sqlite3 donde se realizará la consulta para obtener la información de los préstamos.
+ */
 void verInformacionPrestamos(sqlite3* db) {
     const char *sql = "SELECT * FROM TIPOS_PRESTAMO";
     sqlite3_stmt *stmt;
@@ -199,6 +228,36 @@ void verInformacionPrestamos(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
+/**
+ * @brief La función calcularTablaPagos permite al usuario calcular y visualizar la tabla de pagos
+ * para un préstamo personalizado o seleccionando uno de los tipos de préstamo existentes en la base de datos.
+ * 
+ * El usuario elige entre dos opciones de cálculo:
+ * 1. Calcular de manera personalizada: El usuario ingresa el monto del préstamo, la tasa de interés mensual
+ *    y el plazo en meses.
+ * 2. Calcular con tipos de préstamo existentes: Se muestran los tipos de préstamo disponibles desde la base de datos,
+ *    el usuario selecciona uno por su ID y luego ingresa el monto del préstamo.
+ * 
+ * Para la opción 1:
+ * - Se solicitan y validan el monto del préstamo, la tasa de interés (en porcentaje anual) y el plazo en meses.
+ * - Se calcula la cuota mensual y se muestra en pantalla.
+ * - Se genera y muestra una tabla detallada de pagos mensuales que incluye el número de mes, el pago mensual,
+ *   el interés, el principal pagado y el saldo restante del préstamo.
+ * 
+ * Para la opción 2:
+ * - Se muestran los tipos de préstamo disponibles con su ID, tipo, tasa de interés y plazo en meses.
+ * - El usuario selecciona un tipo de préstamo por su ID.
+ * - Se solicita y valida el monto del préstamo.
+ * - Se calcula la cuota mensual y se muestra en pantalla.
+ * - Se genera y muestra una tabla detallada de pagos mensuales similar a la opción 1.
+ * 
+ * Si la preparación de consultas SQL no tiene éxito en la obtención de tipos de préstamo o detalles específicos,
+ * se muestra un mensaje de error correspondiente.
+ * 
+ * La función utiliza funciones auxiliares para convertir la tasa de interés anual a mensual y calcular la cuota mensual.
+ * 
+ * @param db Puntero a la base de datos sqlite3 donde se realizarán las consultas para obtener tipos de préstamo.
+ */
 
 void calcularTablaPagos(sqlite3* db) {
     int opcion;
@@ -357,7 +416,17 @@ while (true) {
     }
 }
 
-
+/**
+ * @brief Permite al cliente realizar el pago de un préstamo.
+ * 
+ * Esta función permite al usuario ingresar el ID del cliente y el ID del préstamo que desea pagar.
+ * Verifica la existencia del cliente y obtiene la información del préstamo.
+ * Permite al usuario seleccionar entre pagar un monto personalizado o una cantidad de cuotas.
+ * Realiza los cálculos necesarios para verificar y procesar el pago, actualizando el saldo de la cuenta
+ * y registrando el pago en la base de datos.
+ * 
+ * @param db Puntero a la base de datos SQLite.
+ */
 void pagarPrestamo(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -639,7 +708,15 @@ void pagarPrestamo(sqlite3* db) {
     sqlite3_finalize(stmtPago);
 }
 
-
+/**
+ * @brief Muestra los préstamos de un cliente específico.
+ * 
+ * Esta función solicita al usuario ingresar el ID del cliente cuyos préstamos desea visualizar.
+ * Realiza una consulta a la base de datos para obtener los detalles de los préstamos del cliente.
+ * Imprime los detalles de cada préstamo en la consola.
+ * 
+ * @param db Puntero a la base de datos SQLite.
+ */
 void verPrestamos(sqlite3* db) {
     int idCliente;
     cout << "Ingrese el ID del Cliente: ";
@@ -672,6 +749,15 @@ void verPrestamos(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
+/**
+ * @brief Genera un reporte de los préstamos de un cliente y lo guarda en un archivo de texto.
+ * 
+ * Esta función solicita al usuario ingresar el ID del cliente cuyos préstamos desea reportar.
+ * Realiza una consulta a la base de datos para obtener los detalles de los préstamos del cliente.
+ * Escribe los detalles de cada préstamo en un archivo de texto llamado 'reporte_prestamos.txt'.
+ * 
+ * @param db Puntero a la base de datos SQLite.
+ */
 
 void generarReportePrestamos(sqlite3* db) {
     int idCliente;
@@ -713,7 +799,13 @@ void generarReportePrestamos(sqlite3* db) {
     cout << "Reporte de prestamos generado con exito en 'reporte_prestamos.txt'." << endl;
 }
 
-
+/**
+ * @brief Agrega un nuevo tipo de préstamo a la base de datos.
+ * 
+ * Esta función permite al usuario ingresar los detalles de un nuevo tipo de préstamo y lo agrega a la tabla `TIPOS_PRESTAMO` en la base de datos.
+ * 
+ * @param db Puntero a la base de datos SQLite.
+ */
 void agregarTipoPrestamo(sqlite3* db) {
     int idTipo, plazoMeses;
     double tasaInteres;
@@ -750,7 +842,14 @@ void agregarTipoPrestamo(sqlite3* db) {
     sqlite3_finalize(stmt);
 }
 
-
+/**
+ * @brief La función imprimirTiposPrestamo obtiene y muestra todos los tipos de préstamo disponibles
+ * almacenados en la base de datos SQLite especificada. La función realiza una consulta SQL para seleccionar 
+ * todos los registros de la tabla TIPOS_PRESTAMO. Luego, recorre los resultados obtenidos y muestra en la consola cada tipo de préstamo con su ID, tipo,
+ * tasa de interés mensual y plazo en meses. Si la preparación de la consulta SQL no tiene éxito, se imprime un mensaje de error indicando la razón del fallo.
+ * 
+ * @param db Puntero a la base de datos sqlite3 donde se realizará la consulta para obtener tipos de préstamo.
+ */
 void imprimirTiposPrestamo(sqlite3* db) {
     const char *sql = "SELECT * FROM TIPOS_PRESTAMO";
     sqlite3_stmt *stmt;

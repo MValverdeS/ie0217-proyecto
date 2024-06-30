@@ -1,7 +1,30 @@
+/**
+ * @file  menu.cpp
+ * @brief Se definen los diferentes menús
+ *
+ * @author Gabriel González Rivera B93432
+ * @author Edgar Marcelo Valverde Solís C08089
+ * @author Daniel Rodríguez Rivas B96719
+ * @date 30/6/2024
+ * 
+ * Licencia: MIT
+ */
+
+
+
 #include <iostream>
 #include "menu.hpp"
 
 using namespace std;
+
+
+
+
+/**
+* @brief función tipo void que imprime el menú inicial
+* 
+* 
+*/
 
 void menuInicial() {
     cout << "Bienvenido al Sistema de Gestion Bancaria" << endl;
@@ -11,6 +34,11 @@ void menuInicial() {
     cout << "3. Salir" << endl;
 }
 
+/**
+* @brief función tipo void que imprime el menú de atención a clientes
+* 
+* 
+*/
 void menuAtencionClientes() {
     cout << "Menu de Atencion a Clientes" << endl;
     cout << "1. Ver Cuentas" << endl;
@@ -25,6 +53,12 @@ void menuAtencionClientes() {
     cout << "10. Salir" << endl;
 }
 
+
+/**
+* @brief función tipo void que imprime el menú de información de préstamos
+* 
+* 
+*/
 void menuInformacionPrestamos() {
     cout << "Menu de Informacion General sobre Prestamos" << endl;
     cout << "1. Ver Informacion de Prestamos" << endl;
@@ -33,6 +67,12 @@ void menuInformacionPrestamos() {
     cout << "4. Salir" << endl;
 }
 
+
+/**
+* @brief función tipo void que imprime el menú de acciones de préstamos
+* 
+* 
+*/
 void menuPrestamos() {
     cout << "Menu de Prestamos" << endl;
     cout << "1. Solicitar Prestamo" << endl;
@@ -42,6 +82,12 @@ void menuPrestamos() {
     cout << "5. Salir" << endl;
 }
 
+
+/**
+* @brief función tipo void que imprime el menú de CDP
+* 
+* 
+*/
 void menuCDP() {
     cout << "Menu de CDP" << endl;
     cout << "1. Crear CDP" << endl;

@@ -1,3 +1,16 @@
+/**
+ * @file cuentas.hpp
+ * @brief Se declaran las funciones asociadas con cuentas
+ *
+ * @author Gabriel González Rivera B93432
+ * @author Edgar Marcelo Valverde Solís C08089
+ * @author Daniel Rodríguez Rivas B96719
+ * @date 30/6/2024
+ * 
+ * Licencia: MIT
+ */
+
+
 #ifndef CUENTAS_HPP
 #define CUENTAS_HPP
 

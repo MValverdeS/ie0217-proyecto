@@ -10,6 +10,39 @@ Este repositorio tiene como finalidad trabajar en el proyecto del curso IE-0217,
 
 **- Daniel Rodríguez Rivas (B96719)**
 
+# Instrucciones de compilacion
+
+Para poder compilar el programa se debe colocar el siguiente codigo en la consola (se debe encontrar en la carpeta llamada src):
+
+```
+g++ .\main.cpp .\menu.cpp .\clientes.cpp .\cuentas.cpp .\prestamos.cpp .\cdp.cpp .\utilidades.cpp -o main -IC:\sqlite -LC:\sqlite -lsqlite3 
+```
+
+Y para poder correr el programa se utilizaria el siguiente comando:
+
+```
+.\main.exe
+```
+
+| Archivos  | contenido |
+| ------------- | ------------- |
+| menu.cpp  | Contiene la definicion de los menus para el programa  |
+| menu.hpp  | Contiene la cabecilla del archivo menu.cpp  |
+| clientes.cpp  | Contiene la definicion de la funcion para crear clientes  |
+| clientes.hpp  | Contiene la cabecilla del archivo clientes.cpp  |
+| cuentas.cpp  | Contiene la definicion de las funciones relacionas a la creacion y funiciones de cuentas |
+| cuentas.hpp  | Contiene la cabecilla del archivo cuentas.cpp  |
+| prestamos.cpp  | Contiene la definicion de las funciones relacionas a la creacion y funiciones de prestamos |
+| prestamos.hpp  | Contiene la cabecilla del archivo prestamos.cpp  |
+| cdp.cpp  | Contiene la definicion de las funciones asociadas a los cdp  |
+| cdp.hpp  | Contiene la cabecilla del archivo cdp.cpp  |
+| utilidades.cpp  | Contiene la definicion de ciertas funciones utiles para el programa como la conversion de dolares a colones  |
+| utilidades.hpp  | Contiene la cabecilla del archivo utilidades.cpp  |
+| main.cpp  | Contiene la funcion main del programa, donde se correra el mismo  |
+
+Link netlify:
+https://6681f0d1e6cd03ba3f647bc7--storied-meerkat-59603f.netlify.app/
+
 ## I FASE. Investigación
 
 ### Qué es un préstamo financiero: tipos y diferencias

@@ -1185,14 +1185,11 @@ void pagarPrestamo(sqlite3* db) {
     }
 
     int idPrestamo;
-    double montoPago;
-    double montoPagoOriginal;
-
     cout << "Ingrese el ID del prestamo que desea pagar: ";
     cin >> idPrestamo;
 
     // Obtener información del préstamo
-    const char *sqlInfoPrestamo = "SELECT MONTO, TASA_INTERES, PLAZO, MONEDA FROM INFO_PRESTAMOS WHERE ID_PRESTAMO = ? AND ID_CLIENTE = ?";
+    const char *sqlInfoPrestamo = "SELECT MONTO, TASA_INTERES, PLAZO, MONEDA, CUOTA_MENSUAL FROM INFO_PRESTAMOS WHERE ID_PRESTAMO = ? AND ID_CLIENTE = ?";
     sqlite3_stmt *stmtInfo;
     if (sqlite3_prepare_v2(db, sqlInfoPrestamo, -1, &stmtInfo, 0) != SQLITE_OK) {
         cerr << "No se pudo preparar la consulta de información del préstamo: " << sqlite3_errmsg(db) << endl;
@@ -1201,7 +1198,7 @@ void pagarPrestamo(sqlite3* db) {
     sqlite3_bind_int(stmtInfo, 1, idPrestamo);
     sqlite3_bind_int(stmtInfo, 2, idCliente);
 
-    double montoRestante, tasaInteres;
+    double montoRestante, tasaInteres, cuotaMensual;
     int plazo;
     string monedaPrestamo;
     if (sqlite3_step(stmtInfo) == SQLITE_ROW) {
@@ -1209,13 +1206,34 @@ void pagarPrestamo(sqlite3* db) {
         tasaInteres = sqlite3_column_double(stmtInfo, 1);
         plazo = sqlite3_column_int(stmtInfo, 2);
         monedaPrestamo = reinterpret_cast<const char*>(sqlite3_column_text(stmtInfo, 3));
-        cout << "El préstamo está en " << monedaPrestamo << "." << endl;
+        cuotaMensual = sqlite3_column_double(stmtInfo, 4);
+        cout << "El préstamo está en " << monedaPrestamo << " con una tasa de interés de " << tasaInteres << "% y un monto restante de " << montoRestante << "." << endl;
     } else {
         cerr << "Préstamo no encontrado." << endl;
         sqlite3_finalize(stmtInfo);
         return;
     }
     sqlite3_finalize(stmtInfo);
+
+    // Calcular cantidad de cuotas pagadas
+    const char *sqlSumaPagos = "SELECT SUM(MONTO) FROM PAGO_PRESTAMOS WHERE ID_PRESTAMO = ?";
+    sqlite3_stmt *stmtSumaPagos;
+
+    if (sqlite3_prepare_v2(db, sqlSumaPagos, -1, &stmtSumaPagos, 0) != SQLITE_OK) {
+        cerr << "No se pudo preparar la consulta de suma de pagos: " << sqlite3_errmsg(db) << endl;
+        return;
+    }
+
+    sqlite3_bind_int(stmtSumaPagos, 1, idPrestamo);
+
+    double sumaPagos = 0.0;
+    if (sqlite3_step(stmtSumaPagos) == SQLITE_ROW) {
+        sumaPagos = sqlite3_column_double(stmtSumaPagos, 0);
+    }
+    sqlite3_finalize(stmtSumaPagos);
+
+    double cuotasPagadas = sumaPagos / cuotaMensual;
+    cout << "Cantidad de cuotas pagadas: " << round(cuotasPagadas * 100) / 100 << endl;
 
     // Solicitar ID de la cuenta para el pago y verificar que pertenezca al cliente
     int idCuenta;
@@ -1246,28 +1264,57 @@ void pagarPrestamo(sqlite3* db) {
     }
     sqlite3_finalize(stmtVerificarCuenta);
 
-while (true) {
-    cout << "Ingrese el monto a pagar en " << monedaCuenta << ": ";
-    cin >> montoPago;
-    if (std::cin.fail()) {
-            std::cin.clear(); // Limpiar el estado de error de cin
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
-            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
-        } else {
-            break;
+    // Elegir si pagar monto personalizado o cantidad de cuotas
+    int opcionPago;
+    cout << "Seleccione el tipo de pago:\n1. Monto personalizado\n2. Cantidad de cuotas" << endl;
+    cin >> opcionPago;
+
+    double montoPago = 0.0;
+    double montoPagoOriginal = 0.0;
+
+    if (opcionPago == 1) {
+        while (true) {
+            cout << "Ingrese el monto a pagar en " << monedaCuenta << ": ";
+            cin >> montoPago;
+            if (cin.fail()) {
+                cin.clear(); // Limpiar el estado de error de cin
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+                cout << "Entrada inválida. Por favor, introduce un número.\n";
+            } else {
+                break;
+            }
         }
-    }
-    
-    montoPagoOriginal = montoPago;
+        montoPagoOriginal = montoPago;
 
-    if (saldoCuenta < montoPago) {
-        cerr << "Saldo insuficiente en la cuenta." << endl;
-        return;
-    }
+        if (saldoCuenta < montoPago) {
+            cerr << "Saldo insuficiente en la cuenta." << endl;
+            return;
+        }
 
-    // Convertir monto si las monedas son diferentes
-    if (monedaPrestamo != monedaCuenta) {
-        montoPago = convertirMoneda(montoPago, monedaCuenta, monedaPrestamo);
+        // Convertir monto si las monedas son diferentes
+        if (monedaPrestamo != monedaCuenta) {
+            montoPago = convertirMoneda(montoPago, monedaCuenta, monedaPrestamo);
+        }
+
+    } else if (opcionPago == 2) {
+        int cantidadCuotas;
+        cout << "Ingrese la cantidad de cuotas que desea pagar: ";
+        cin >> cantidadCuotas;
+
+        montoPago = cuotaMensual * cantidadCuotas;
+
+        if (monedaPrestamo != monedaCuenta) {
+            montoPagoOriginal = convertirMoneda(montoPago, monedaPrestamo, monedaCuenta);
+        } else {
+            montoPagoOriginal = montoPago;
+        }
+
+        if (saldoCuenta < montoPagoOriginal) {
+            cerr << "Saldo insuficiente en la cuenta." << endl;
+            return;
+        }
+
+        saldoCuenta -= montoPagoOriginal;
     }
 
     // Verificar que el monto a pagar es suficiente para la cuota

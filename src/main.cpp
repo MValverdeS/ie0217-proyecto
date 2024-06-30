@@ -196,8 +196,18 @@ void realizarDeposito(sqlite3* db) {
 
     double monto;
     double monto1;
+    while (true) {
     cout << "Ingrese el monto a depositar en " << monedaDeposito << ": ";
     cin >> monto1;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+
 
     // Convertir el monto si es necesario
     if (tipoCuenta != monedaDeposito) {
@@ -292,9 +302,20 @@ void crearCDP(sqlite3* db) {
         return;
     }
     sqlite3_finalize(stmtUltimoCDP);
-
+    while (true) {
     cout << "Ingrese el monto del CDP: ";
     cin >> monto;
+if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+
+
+
     cout << "Ingrese la tasa de interes: ";
     cin >> interes;
     cout << "Ingrese la fecha inicial (YYYY-MM-DD): ";
@@ -419,8 +440,18 @@ void realizarRetiro(sqlite3* db) {
     }
     sqlite3_finalize(stmtCuenta);
 
+while (true) {
     cout << "Ingrese el monto a retirar: ";
     cin >> monto;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+
 
     if (saldoActual < monto) {
         cerr << "Saldo insuficiente." << endl;
@@ -546,8 +577,19 @@ void realizarTransferencia(sqlite3* db) {
     sqlite3_finalize(stmtCuentaDestino);
 
     // Solicitar el monto a transferir
+
+    while (true) {
     cout << "Ingrese el monto a transferir en " << (tipoCuentaOrigen == "Dolares" ? "dólares" : "colones") << ": ";
     cin >> monto;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+    
 
     if (saldoActualOrigen < monto) {
         cerr << "Saldo insuficiente." << endl;
@@ -676,12 +718,22 @@ void calcularTablaPagos(sqlite3* db) {
         double monto, tasaInteres;
         int plazoMeses;
 
-        cout << "Ingrese el monto del préstamo: ";
+while (true) {
+    cout << "Ingrese el monto del préstamo: ";
         cin >> monto;
         cout << "Ingrese la tasa de interés (en %): ";
         cin >> tasaInteres;
         cout << "Ingrese el plazo en meses: ";
         cin >> plazoMeses;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+        
 
         tasaInteres = tasaInteres / 100 / 12; // Convertir tasa anual a mensual
         double cuotaMensual = (monto * tasaInteres) / (1 - pow(1 + tasaInteres, -plazoMeses));
@@ -757,8 +809,19 @@ void calcularTablaPagos(sqlite3* db) {
 
         cout << "Ingrese la moneda del préstamo: ";
         cin >> moneda;
+
+        while (true) {
         cout << "Ingrese el monto del préstamo: ";
         cin >> monto;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+       
 
         // Calcular la cuota mensual y la tabla de pagos
         tasaInteres = tasaInteres / 100 / 12; // Convertir tasa anual a mensual
@@ -857,8 +920,19 @@ void solicitarPrestamo(sqlite3* db) {
     double monto;
     cout << "Ingrese la moneda del prestamo: ";
     cin >> moneda;
-    cout << "Ingrese el monto del prestamo: ";
+
+    while (true) {
+     cout << "Ingrese el monto del prestamo: ";
     cin >> monto;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+   
     moneda1 = mayusculaLetra1(moneda);
     // Verificar que el cliente tenga una cuenta en la moneda del prestamo
     const char *verificarCuentaSql = "SELECT ID_CUENTA FROM CUENTAS WHERE ID_CLIENTE = ? AND TIPO = ?";
@@ -1115,8 +1189,18 @@ void pagarPrestamo(sqlite3* db) {
     }
     sqlite3_finalize(stmtVerificarCuenta);
 
+while (true) {
     cout << "Ingrese el monto a pagar en " << monedaCuenta << ": ";
     cin >> montoPago;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+    
     montoPagoOriginal = montoPago;
 
     if (saldoCuenta < montoPago) {
@@ -1410,8 +1494,19 @@ void crearCuenta(sqlite3* db) {
 
     // Solicitar monto inicial
     double montoInicial;
+
+    while (true) {
     cout << "Ingrese el monto inicial para la cuenta en " << tipoCuenta << ": ";
     cin >> montoInicial;
+    if (std::cin.fail()) {
+            std::cin.clear(); // Limpiar el estado de error de cin
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+            std::cout << "Entrada inválida. Por favor, introduce un número.\n";
+        } else {
+            break;
+        }
+    }
+   
 
     // Crear la cuenta
     const char *sqlCrearCuenta = "INSERT INTO CUENTAS (ID_CUENTA, ID_CLIENTE, TIPO, MONTO) VALUES (?, ?, ?, ?)";

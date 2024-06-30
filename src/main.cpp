@@ -191,8 +191,27 @@ void realizarDeposito(sqlite3* db) {
 
     // Solicitar la moneda en la que se realizará el depósito
     string monedaDeposito;
-    cout << "Desea realizar el deposito en (colones/dolares): ";
-    cin >> monedaDeposito;
+
+    while (true) {
+        cout << "Desea realizar el deposito en (colones/dolares): ";
+        cin >> monedaDeposito;
+
+        // Convertir a minúsculas para evitar problemas de sensibilidad al caso
+        for (auto &c : monedaDeposito) {
+            c = tolower(c);
+        }
+
+        // Verificar la entrada
+        if (monedaDeposito == "dolares" || monedaDeposito == "colones") {
+            break; // Salir del bucle si la entrada es correcta
+        } else {
+            std::cout << "Entrada inválida. Por favor, introduce 'dolares' o 'colones'.\n";
+            // Limpiar el flujo de entrada en caso de un error
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+
 
     double monto;
     double monto1;
@@ -807,8 +826,27 @@ while (true) {
         string moneda;
         double monto;
 
-        cout << "Ingrese la moneda del préstamo: ";
-        cin >> moneda;
+        
+
+        while (true) {
+        std::cout << "Ingrese el tipo de moneda (dolares o colones): ";
+        std::cin >> moneda;
+
+        // Convertir a minúsculas para evitar problemas de sensibilidad al caso
+        for (auto &c : moneda) {
+            c = tolower(c);
+        }
+
+        // Verificar la entrada
+        if (moneda == "dolares" || moneda == "colones") {
+            break; // Salir del bucle si la entrada es correcta
+        } else {
+            std::cout << "Entrada inválida. Por favor, introduce 'dolares' o 'colones'.\n";
+            // Limpiar el flujo de entrada en caso de un error
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        }
 
         while (true) {
         cout << "Ingrese el monto del préstamo: ";
@@ -918,8 +956,27 @@ void solicitarPrestamo(sqlite3* db) {
     string moneda;
     string moneda1;
     double monto;
-    cout << "Ingrese la moneda del prestamo: ";
-    cin >> moneda;
+
+while (true) {
+        std::cout << "Ingrese el tipo de moneda (dolares o colones): ";
+        std::cin >> moneda;
+
+        // Convertir a minúsculas para evitar problemas de sensibilidad al caso
+        for (auto &c : moneda) {
+            c = tolower(c);
+        }
+
+        // Verificar la entrada
+        if (moneda == "dolares" || moneda == "colones") {
+            break; // Salir del bucle si la entrada es correcta
+        } else {
+            std::cout << "Entrada inválida. Por favor, introduce 'dolares' o 'colones'.\n";
+            // Limpiar el flujo de entrada en caso de un error
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+}
+
 
     while (true) {
      cout << "Ingrese el monto del prestamo: ";
@@ -1484,8 +1541,28 @@ void crearCuenta(sqlite3* db) {
 
     // Solicitar tipo de cuenta (dólares o colones)
     string tipoCuenta;
-    cout << "Ingrese el tipo de cuenta (Dolares/Colones): ";
-    cin >> tipoCuenta;
+
+    while (true) {
+        cout << "Ingrese el tipo de cuenta (Dolares/Colones): ";
+        cin >> tipoCuenta;
+
+        // Convertir a minúsculas para evitar problemas de sensibilidad al caso
+        for (auto &c : tipoCuenta) {
+            c = tolower(c);
+        }
+
+        // Verificar la entrada
+        if (tipoCuenta == "dolares" || tipoCuenta == "colones") {
+            break; // Salir del bucle si la entrada es correcta
+        } else {
+            std::cout << "Entrada inválida. Por favor, introduce 'dolares' o 'colones'.\n";
+            // Limpiar el flujo de entrada en caso de un error
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+
+    
 
     if (tipoCuenta != "Dolares" && tipoCuenta != "Colones") {
         cerr << "Tipo de cuenta no válido." << endl;

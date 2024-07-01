@@ -100,16 +100,11 @@ void crearCuenta(sqlite3* db) {
         cout << "Ingrese el tipo de cuenta (Dolares/Colones): ";
         cin >> tipoCuenta;
 
-        // Convertir a minúsculas para evitar problemas de sensibilidad al caso
-        for (auto &c : tipoCuenta) {
-            c = tolower(c);
-        }
-
         // Verificar la entrada
-        if (tipoCuenta == "dolares" || tipoCuenta == "colones") {
+        if (tipoCuenta == "Dolares" || tipoCuenta == "Colones") {
             break; // Salir del bucle si la entrada es correcta
         } else {
-            std::cout << "Entrada inválida. Por favor, introduce 'dolares' o 'colones'.\n";
+            std::cout << "Entrada inválida. Por favor, introduce 'Dolares' o 'Colones'.\n";
             // Limpiar el flujo de entrada en caso de un error
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -118,7 +113,7 @@ void crearCuenta(sqlite3* db) {
 
     
 
-    if (tipoCuenta != "Dolares" && tipoCuenta != "Colones") {
+    if (tipoCuenta != "Dolares" && tipoCuenta != "Colones" && tipoCuenta != "dolares" && tipoCuenta != "colones") {
         cerr << "Tipo de cuenta no válido." << endl;
         return;
     }
